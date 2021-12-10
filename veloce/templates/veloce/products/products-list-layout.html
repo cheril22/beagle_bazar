@@ -1,0 +1,171 @@
+{% load auth_tag %}
+{% load static %}
+<div class="col-sm-3">
+    {% if product.id|check_has_offer %}
+        <span class="offer">Offer</span>
+    {% endif %}
+    <figure class="card card-product">
+        <div class="img-wrap"  style="height: 250px;">
+            {{ static }}
+            {% if user.is_authenticated %}
+
+                    {% if product.product_media.all %}
+                        {% for img in product.product_media.all %}
+                            {% if img.is_feature_image %}
+                                <a href="{% if 1 in user_level.incomplete_level or not 1 in user_level.incomplete_level and 1 in user_level.not_verified_level %} javascript:void(0); {%else%} {% url 'product_details' product.slug %} {% endif %} " data-check-level="1">
+                                    <div style="background-image:url('/pix/samples/bg1.png');background-repeat:no-repeat;padding:5px;width:auto;height:180px;border:1px solid black;"></div>
+                                    <img src='{{ img.image.name|slice:"6:" }}' class="product-thumbnail {% if 1 in user_level.incomplete_level %} compare-products {% elif not 1 in user_level.incomplete_level and 1 in user_level.not_verified_level%} admin-approval {%endif%}" data-check-level="1">
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                        <a href="{% if 1 in user_level.incomplete_level or not 1 in user_level.incomplete_level and 1 in user_level.not_verified_level %} javascript:void(0); {%else%} {% url 'product_details' product.slug %} {% endif %} ">
+                            <img src='{{ product.product_media.first.image.name|slice:"6:" }}' class="product-thumbnail {% if 1 in user_level.incomplete_level %} compare-products {% elif not 1 in user_level.incomplete_level and 1 in user_level.not_verified_level%} admin-approval {%endif%}" data-check-level="1">
+                        </a>
+                    {% else %}
+                        <a href="javascript:void(0);">
+                            <img src="" class="product-thumbnail {% if 1 in user_level.incomplete_level %} compare-products {% elif not 1 in user_level.incomplete_level and 1 in user_level.not_verified_level%} admin-approval {%endif%}">
+                        </a>
+                    {% endif %}
+
+            {% else %}
+                {% if product.product_media.all %}
+                    {% for img in product.product_media.all %}
+                        {% if img.is_feature_image %}
+                            <a href="{% url 'product_details' product.slug %}">
+                                <div style="background-image:url('/pix/samples/bg1.png');background-repeat:no-repeat;padding:5px;width:150px;height:200px;border:1px solid black;"></div>
+                                <img src='{{ img.image.name|slice:"6:" }}' class="product-thumbnail">
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                    <a href="{% url 'product_details' product.slug %}">
+                        <img src='{{ product.product_media.first.image.name|slice:"6:" }}' class="product-thumbnail">
+                    </a>
+                {% else %}
+                    <a href="{% url 'product_details' product.slug %}">
+                        <img src="" class="product-thumbnail">
+                    </a>
+                {% endif %}
+            {% endif %}
+        </div>
+        <figcaption class="info-wrap">
+            {% if user.is_authenticated %}
+
+                    <a href="{% if 1 in user_level.incomplete_level or not 1 in user_level.incomplete_level and 1 in user_level.not_verified_level %} javascript:void(0);{%else%} {% url 'product_details' product.slug %} {%endif%}" title="{{ product.name }}" class="title h5 {% if 1 in user_level.incomplete_level %} compare-products {% elif not 1 in user_level.incomplete_level and 1 in user_level.not_verified_level%} admin-approval {%endif%}" data-check-level="1">{{product.name|truncatechars:25}}</a>
+
+            {%else%}
+                <a href="{% url 'product_details' product.slug %}" title="{{ product.name }}" class="title h5">{{product.name|truncatechars:25}}</a>
+            {%endif%}
+                <p class="desc" data-id="{{product.vendor.email}}">
+<!--                    {{product.vendor.id}} {{user.id}}-->
+                      {% if user.is_authenticated %}
+                        {% if user.id|is_level_one_completed %}
+                            <small><b>Dealer:</b> {{product.vendor.first_name}} {{product.vendor.last_name}} </small><br />
+                        {% endif %}
+                    {% endif %}
+                    <span title="{{product.specification}}">
+                        <small><b>Specification:</b> {{product.specification|truncatechars:30}} </small><br />
+                    </span>
+                </p>
+            <div class="rating-wrap">
+                {% include 'veloce/modal/display-rating.html' %}
+                {% if user.is_authenticated %}
+                    {% if user.id|is_level_three_completed %}
+                    <!--<button type="button" class="btn btn-sm btn-primary pl-3 pr-2 float-right inq-btn mb-3 mt-3"><a href="javaScript:void(0);" data-product-id="{{ product.id }}"  >VIL Approve</a></button>-->
+<!--                <a href="javascript:void(0);" class="btn btn-sm btn-primary float-right inq-btn" data-product-id="{{ product.id }}" data-toggle="modal" data-target="#inquiryModal">SUBMIT INQUIRY</a>-->
+                    {%endif%}
+                {% endif %}
+            </div>
+<!--            {% if user.is_authenticated %}-->
+<!--                {% if user.id|is_level_one_completed %}-->
+<!--                    {% if product.vendor.username != user.username %}-->
+<!--                        <div class="d-block mt-4 gift-card-block">-->
+<!--                            <div class="custom-control custom-checkbox ">-->
+<!--                              <input type="checkbox" class="custom-control-input get-promo-code" id="checkPromoCode{{ product.id }}">-->
+<!--                              <input type="hidden" name="product_id" value="{{ product.id }}">-->
+<!--                                <label class="custom-control-label" for="checkPromoCode{{ product.id }}"><small>Do you have a gift card voucher or discount code ?</small></label>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    {% endif %}-->
+<!--                {% endif %}-->
+<!--            {% endif %}-->
+        </figcaption>
+        {% if user.is_authenticated %}
+            {% if product.vendor.username != user.username %}
+                <div class="bottom-wrap">
+                    {% if user.id|is_level_one_completed %}
+                        <!-- <a href="javascript:void(0);" class="btn btn-sm btn-primary float-right inq-btn" data-product-id="{{ product.id }}" data-toggle="modal" data-target="#inquiryModal">SUBMIT INQUIRY</a> -->
+                        <a href="javascript:void(0);" class="btn btn-sm btn-primary float-right inq-btn" data-product-id="{{ product.id }}" data-toggle="modal" data-target="#inquiryModal" >SUBMIT INQUIRY</a>
+                        <div class="price-wrap h5">
+
+                                {% for price in product.product_prices.all %}
+                                    {% if price.amount == max_amt %}
+                                        {% if price.disc_per or price.disc_amt %}
+                                            <span class="price-new">
+                                                {{ price.get_currency_display|upper }} <small class="max-amt-{{ product.id }}">{{ price.id|get_after_discount_price|floatformat }}</small>
+                                            </span>
+                                           <del class="price-old"><small>{{ price.amount|floatformat }}</small></del>
+                                        {% else %}
+                                            {{ price.get_currency_display|upper }} <small class="max-amt-{{ product.id }}">{{ price.amount|floatformat }}</small>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+
+                        </div>
+                    {% else %}
+
+                            <!-- <a href="javascript:void(0);" class="btn btn-sm btn-primary float-right {% if 2 in user_level.incomplete_level %} compare-products {% elif not 2 in user_level.incomplete_level and 2 in user_level.not_verified_level%} admin-approval {%endif%}" data-check-level="2">SUBMIT INQUIRY</a> -->
+                            <a href="javascript:void(0);" class="btn btn-sm btn-primary float-right {% if 2 in user_level.incomplete_level %} compare-products {% elif not 2 in user_level.incomplete_level and 2 in user_level.not_verified_level%} admin-approval {%endif%}" data-check-level="2" data-toggle="modal" data-target="#SignIn" >SUBMIT INQUIRY</a>
+                    <div class="price-wrap h5">
+
+                                {% for price in product.product_prices.all %}
+                                    {% if price.amount == max_amt %}
+                                        {% if price.disc_per or price.disc_amt %}
+                                            <span class="price-new">
+                                                {{ price.get_currency_display|upper }} <small class="max-amt-{{ product.id }}">{{ price.id|get_after_discount_price|floatformat }}</small>
+                                            </span>
+                                           <del class="price-old"><small>{{ price.amount|floatformat }}</small></del>
+                                        {% else %}
+                                            {{ price.get_currency_display|upper }} <small class="max-amt-{{ product.id }}">{{ price.amount|floatformat }}</small>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% else %}
+            <a href="javascript:void(0);" class="btn btn-sm btn-primary float-right inq-btn" style="padding: 8px 40px;" data-toggle="modal" data-target="#SignIn" >
+                SUBMIT INQUIRY
+            </a>
+        {% endif%}
+    </figure>
+</div>
+{% if product.id|check_has_offer %}
+<div class="modal fade" id="offerModal" tabindex="-1" role="dialog" aria-labelledby="offerModalTitle"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <div class="modal-body">
+                <div class="title">
+                    <span>Up to USD 25 waived</span>
+                </div>
+                <p>
+                    This offer is available for some limited period of time. hurry up to grab the offer!
+                </p>
+                <p>
+                    *Each new user can only enjoy this discount once. Only applicable to transactions with suppliers who
+                    support Trade Assurance service.
+                </p>
+                <div class="t">• Credit/debit card</div>
+                <p>Up to USD 25 in transaction fees waived when you save your card details</p>
+                <div class="t">Online Transfer</div>
+                <p>Zero transaction fees</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}

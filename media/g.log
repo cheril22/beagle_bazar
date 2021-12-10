@@ -1,0 +1,116 @@
+[2020-08-28 09:44:30 +0000] [1974] [INFO] Starting gunicorn 20.0.4
+[2020-08-28 09:44:30 +0000] [1974] [INFO] Listening at: http://127.0.0.1:8000 (1974)
+[2020-08-28 09:44:30 +0000] [1974] [INFO] Using worker: sync
+[2020-08-28 09:44:30 +0000] [1977] [INFO] Booting worker with pid: 1977
+[2020-08-28 09:44:30 +0000] [1977] [ERROR] Exception in worker process
+Traceback (most recent call last):
+  File "/home/ubuntu/env/lib/python3.6/site-packages/gunicorn/arbiter.py", line 583, in spawn_worker
+    worker.init_process()
+  File "/home/ubuntu/env/lib/python3.6/site-packages/gunicorn/workers/base.py", line 119, in init_process
+    self.load_wsgi()
+  File "/home/ubuntu/env/lib/python3.6/site-packages/gunicorn/workers/base.py", line 144, in load_wsgi
+    self.wsgi = self.app.wsgi()
+  File "/home/ubuntu/env/lib/python3.6/site-packages/gunicorn/app/base.py", line 67, in wsgi
+    self.callable = self.load()
+  File "/home/ubuntu/env/lib/python3.6/site-packages/gunicorn/app/wsgiapp.py", line 49, in load
+    return self.load_wsgiapp()
+  File "/home/ubuntu/env/lib/python3.6/site-packages/gunicorn/app/wsgiapp.py", line 39, in load_wsgiapp
+    return util.import_app(self.app_uri)
+  File "/home/ubuntu/env/lib/python3.6/site-packages/gunicorn/util.py", line 358, in import_app
+    mod = importlib.import_module(module)
+  File "/home/ubuntu/env/lib/python3.6/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 994, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 971, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 953, in _find_and_load_unlocked
+ModuleNotFoundError: No module named 'project/wsgi'
+[2020-08-28 09:44:30 +0000] [1977] [INFO] Worker exiting (pid: 1977)
+[2020-08-28 09:44:30 +0000] [1974] [INFO] Shutting down: Master
+[2020-08-28 09:44:30 +0000] [1974] [INFO] Reason: Worker failed to boot.
+[2020-08-28 09:45:13 +0000] [2009] [INFO] Starting gunicorn 20.0.4
+[2020-08-28 09:45:13 +0000] [2009] [INFO] Listening at: http://127.0.0.1:8000 (2009)
+[2020-08-28 09:45:13 +0000] [2009] [INFO] Using worker: sync
+[2020-08-28 09:45:13 +0000] [2012] [INFO] Booting worker with pid: 2012
+[2020-08-28 09:45:13 +0000] [2012] [ERROR] Exception in worker process
+Traceback (most recent call last):
+  File "/home/ubuntu/env/lib/python3.6/site-packages/gunicorn/util.py", line 358, in import_app
+    mod = importlib.import_module(module)
+  File "/home/ubuntu/env/lib/python3.6/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 994, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 971, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 941, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 994, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 971, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 953, in _find_and_load_unlocked
+ModuleNotFoundError: No module named 'project/wsgi'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/env/lib/python3.6/site-packages/gunicorn/arbiter.py", line 583, in spawn_worker
+    worker.init_process()
+  File "/home/ubuntu/env/lib/python3.6/site-packages/gunicorn/workers/base.py", line 119, in init_process
+    self.load_wsgi()
+  File "/home/ubuntu/env/lib/python3.6/site-packages/gunicorn/workers/base.py", line 144, in load_wsgi
+    self.wsgi = self.app.wsgi()
+  File "/home/ubuntu/env/lib/python3.6/site-packages/gunicorn/app/base.py", line 67, in wsgi
+    self.callable = self.load()
+  File "/home/ubuntu/env/lib/python3.6/site-packages/gunicorn/app/wsgiapp.py", line 49, in load
+    return self.load_wsgiapp()
+  File "/home/ubuntu/env/lib/python3.6/site-packages/gunicorn/app/wsgiapp.py", line 39, in load_wsgiapp
+    return util.import_app(self.app_uri)
+  File "/home/ubuntu/env/lib/python3.6/site-packages/gunicorn/util.py", line 362, in import_app
+    raise ImportError(msg % (module.rsplit(".", 1)[0], obj))
+ImportError: Failed to find application, did you mean 'project/wsgi:application'?
+[2020-08-28 09:45:13 +0000] [2012] [INFO] Worker exiting (pid: 2012)
+[2020-08-28 09:45:13 +0000] [2009] [INFO] Shutting down: Master
+[2020-08-28 09:45:13 +0000] [2009] [INFO] Reason: Worker failed to boot.
+[2020-08-28 09:45:30 +0000] [2014] [INFO] Starting gunicorn 20.0.4
+[2020-08-28 09:45:30 +0000] [2014] [INFO] Listening at: http://0.0.0.0:8000 (2014)
+[2020-08-28 09:45:30 +0000] [2014] [INFO] Using worker: sync
+[2020-08-28 09:45:30 +0000] [2017] [INFO] Booting worker with pid: 2017
+[2020-08-28 09:45:30 +0000] [2017] [ERROR] Exception in worker process
+Traceback (most recent call last):
+  File "/home/ubuntu/env/lib/python3.6/site-packages/gunicorn/util.py", line 358, in import_app
+    mod = importlib.import_module(module)
+  File "/home/ubuntu/env/lib/python3.6/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 994, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 971, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 941, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 994, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 971, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 953, in _find_and_load_unlocked
+ModuleNotFoundError: No module named 'project/wsgi'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/env/lib/python3.6/site-packages/gunicorn/arbiter.py", line 583, in spawn_worker
+    worker.init_process()
+  File "/home/ubuntu/env/lib/python3.6/site-packages/gunicorn/workers/base.py", line 119, in init_process
+    self.load_wsgi()
+  File "/home/ubuntu/env/lib/python3.6/site-packages/gunicorn/workers/base.py", line 144, in load_wsgi
+    self.wsgi = self.app.wsgi()
+  File "/home/ubuntu/env/lib/python3.6/site-packages/gunicorn/app/base.py", line 67, in wsgi
+    self.callable = self.load()
+  File "/home/ubuntu/env/lib/python3.6/site-packages/gunicorn/app/wsgiapp.py", line 49, in load
+    return self.load_wsgiapp()
+  File "/home/ubuntu/env/lib/python3.6/site-packages/gunicorn/app/wsgiapp.py", line 39, in load_wsgiapp
+    return util.import_app(self.app_uri)
+  File "/home/ubuntu/env/lib/python3.6/site-packages/gunicorn/util.py", line 362, in import_app
+    raise ImportError(msg % (module.rsplit(".", 1)[0], obj))
+ImportError: Failed to find application, did you mean 'project/wsgi:application'?
+[2020-08-28 09:45:30 +0000] [2017] [INFO] Worker exiting (pid: 2017)
+[2020-08-28 09:45:31 +0000] [2014] [INFO] Shutting down: Master
+[2020-08-28 09:45:31 +0000] [2014] [INFO] Reason: Worker failed to boot.
+[2020-08-28 09:46:41 +0000] [2038] [INFO] Starting gunicorn 20.0.4
+[2020-08-28 09:46:41 +0000] [2038] [ERROR] Retrying in 1 second.
+[2020-08-28 09:46:42 +0000] [2038] [ERROR] Retrying in 1 second.
+[2020-08-28 09:46:43 +0000] [2038] [ERROR] Retrying in 1 second.
+[2020-08-28 09:46:44 +0000] [2038] [ERROR] Retrying in 1 second.
+[2020-08-28 09:46:45 +0000] [2038] [ERROR] Retrying in 1 second.
+[2020-08-28 09:46:46 +0000] [2038] [ERROR] Can't connect to ('172.313.43.79', 8000)

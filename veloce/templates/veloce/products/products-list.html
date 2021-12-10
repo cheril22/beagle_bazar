@@ -1,0 +1,87 @@
+{% extends 'veloce/layout/index.html' %}
+{% load static %}
+
+{% block title %}Product Listing Page{% endblock %}
+
+{% block customCssBlock %}
+<link href='{% static "veloce-store/vendor/datatables/dataTables.bootstrap4.min.css" %}' rel="stylesheet">
+<link rel="stylesheet" href='{% static "veloce-store/css/home-page.css" %}'>
+{% endblock %}
+{% block content %}
+<!-- Page Heading -->
+<h1 class="h3 mb-2 text-gray-800 text-left">Product lists</h1>
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">My listed products</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                <tr>
+                    <th width="35%" class="text-center">Product Name</th>
+                    <th width="35%" class="text-center">Product Categories</th>
+                    <th width="12%" class="text-center">Is Featured Product</th>
+                    <th width="15%" class="text-center">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if product_data %}
+                {% for item in product_data %}
+                <tr>
+                    <td>{{item.name}}</td>
+                    <td>{{item.sub_category.name}}</td>
+                    <td style="text-align: right;">{{item.is_featured_product|yesno:"Yes,No,None"}}</td>
+                    <td>
+                        <a href="{% url 'product_detail' item.pk %}" class="btn btn-primary">
+                            <i class="fa fa-eye" aria-hidden="true"></i>
+                        </a>
+                        <a href="{% url 'edit_product' item.pk %}" data-product-id="{{ item.pk }}"
+                           class="btn btn-primary product-edit-btn">
+                            <i class="fa fa-edit" aria-hidden="true"></i>
+                        </a>
+                        <a href="javaScript:void(0);" id="{% url 'delete_product' item.pk %}" data-toggle="modal"
+                           data-target="#deleteProductModal" class="btn btn-primary delete-btn">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="4">No Data Found</td>
+                </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- Logout Modal-->
+<div class="modal fade" id="deleteProductModal" tabindex="-1" role="dialog" aria-labelledby="deleteProductModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteProductModalLabel">Are you sure?</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">Do you really want to delete this records?</div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                <a class="btn btn-danger" id="delete-record" href="">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block customJsBlock %}
+<!-- Page level plugins -->
+<script src='{% static "veloce-store/vendor/datatables/jquery.dataTables.min.js" %}'></script>
+<script src='{% static "veloce-store/vendor/datatables/dataTables.bootstrap4.min.js" %}'></script>
+<!-- Page level custom scripts -->
+<script src='{% static "veloce-store/vendor/datatables/datatables-demo.js" %}'></script>
+<script src='{% static "veloce-store/js/product-page.js" %}'></script>
+{% endblock %}

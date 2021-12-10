@@ -1,0 +1,85 @@
+{% extends 'veloce/layout/index.html' %}
+{% load auth_tag %}
+{% load static %}
+
+{% block title %}Reward Listing{% endblock %}
+
+{% block customCssBlock %}
+<link href='{% static "veloce-store/vendor/datatables/dataTables.bootstrap4.min.css" %}' rel="stylesheet">
+<link rel="stylesheet" href='{% static "veloce-store/css/home-page.css" %}'>
+{% endblock %}
+
+{% block content %}
+<!-- Page Heading -->
+{% if dealer_rewards|length == 0 and customer_rewards|length == 0 %}
+    <h1 class="h3 mb-2 text-gray-800 text-left"> You have no reward points !!! </h1>
+{% else %}
+    {% if dealer_rewards %}
+    <h1 class="h3 mb-2 text-gray-800 text-left">Seller Rewards </h1>
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h3 class="m-0 font-weight-bold text-primary"> Rewards Points</h3>
+            <small class="h6">Being rewards earned by you on your sales transactions.</small>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dealer-rewards-data-Table" width="100%" cellspacing="0">
+                    <thead>
+                    <tr>
+                        <th class="text-center">Product Name</th>
+                        <th class="text-center">Reward Points</th>
+                        <th class="text-center">Transaction Date</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {% for reward in dealer_rewards %}
+                            <tr>
+                                <td>{{reward.book_sale.inquiry.product.name}}</td>
+                                <td>{{reward.dealer_reward_point}}</td>
+                                <td>{{reward.transaction_date}}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% if customer_rewards %}
+        <h1 class="h3 mb-2 text-gray-800 text-left"> Purchase Rewards </h1>
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h3 class="m-0 font-weight-bold text-primary"> Rewards Points</h3>
+                <small class="h6"> Being rewards earned by you on your purchase transactions. </small>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="purchase-rewards-data-Table" width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th class="text-center">Product Name</th>
+                            <th class="text-center">Reward Points</th>
+                            <th class="text-center">Transaction Date</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {% for reward in customer_rewards %}
+                                <tr>
+                                    <td>{{reward.book_sale.inquiry.product.name}}</td>
+                                    <td>{{reward.dealer_reward_point}}</td>
+                                    <td>{{reward.transaction_date}}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endif %}
+{% endblock %}
+{% block customJsBlock %}
+<script src='{% static "veloce-store/vendor/datatables/jquery.dataTables.min.js" %}'></script>
+<script src='{% static "veloce-store/vendor/datatables/dataTables.bootstrap4.min.js" %}'></script>
+<script src='{% static "veloce-store/vendor/datatables/datatables-demo.js" %}'></script>
+{% endblock %}

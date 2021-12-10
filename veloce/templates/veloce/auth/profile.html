@@ -1,0 +1,27 @@
+{% extends 'veloce/layout/index.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Profile Page{% endblock %}
+
+{% block customCssBlock %}
+<link rel="stylesheet" href='{% static "veloce-store/css/home-page.css" %}'>
+{% endblock %}
+
+{% block content %}
+<!-- Page Heading -->
+<h1 class="h3 mb-2 text-gray-800 text-left">Profile</h1>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Manage Profile</h6>
+    </div>
+    <div class="card-body">
+        <form method="post" class="user">
+            {% csrf_token %}
+            {% include 'veloce/form/form.html' %}
+            <button type="submit" class="btn btn-primary btn-user btn-block">Save</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

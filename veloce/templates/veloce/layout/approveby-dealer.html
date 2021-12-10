@@ -1,0 +1,1100 @@
+{% extends 'veloce/layout/index.html' %}
+{% load static %}
+
+{% block title %}Dealer List{% endblock %}
+
+{% block customCssBlock %}
+<link href='{% static "veloce-store/vendor/datatables/dataTables.bootstrap4.min.css" %}' rel="stylesheet">
+<link rel="stylesheet" href='{% static "veloce-store/css/home-page.css" %}'>
+{% endblock %}
+{% block content %}
+{% csrf_token %}
+<div class="msg_ajax_add"></div>
+<!-- Page Heading -->
+<h1 class="h3 mb-2 text-gray-800 text-left">Company lists</h1>
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">All Company List</h6>
+        <small> Welcome to Beagle Bazar dealer list. please select the dealer from below who can sell you product. </small>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            {% csrf_token %}
+            <table class="table table-bordered"  width="100%" cellspacing="0">
+                <thead>
+                <tr>
+                    <th width="5%" class="text-center">No.</th>
+                    <th width="25%" class="text-center">Company Name</th>
+                    <th width="25%" class="text-center">Location</th>
+                    <th width="15%" class="text-center">View Profile</th>
+                    <th width="15%" class="text-center">Approve</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if company_modules %}
+                    {% for company_lists in company_modules %}
+                    <tr>
+                        <td class="text-center">{{ forloop.counter}}</td>
+                        {% for company_list in company_lists %}
+                        <td>{{company_list.User.first_name }} {{company_list.User.last_name }} - {{company_list.User.username }}</td>
+                        <td>{{company_list.Address.city }}</td>
+                        <td class="text-center">
+                            <a href="javascript:void(0);" class="btn btn-primary get_jq_val" data-toggle="modal" data-target="#CompanyDetails" data-id = "{{company_list.User.id}}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                    <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+                                    <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+                                </svg>
+                            </a>
+                        </td>
+                        <!-- {{pending_dealers}} -->
+                        {% if company_list.User.username not in pending_companys %}
+                            {% if company_list.User.username not in completed_companys %}
+                            <td class="text-center">    
+                                <a href="javascript:void(0);" data-id="{{company_list.User.id}}"  data-toggle="modal" data-target="#approvecompanybydealer" class="btn btn-primary product-edit-btn a_company_select">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-square-fill" viewBox="0 0 16 16">
+                                        <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm10.03 4.97a.75.75 0 0 1 .011 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.75.75 0 0 1 1.08-.022z"/>
+                                    </svg>
+                                </a>
+                            </td>
+                            {% else %}
+                            <td class="text-center">    
+                                <button href="javascript:void(0);" class="btn btn-secondary" disabled="">Verify</button>
+                            </td>
+                            {% endif %}
+                        {% else %}
+                        <td class="text-center">    
+                            <button href="javascript:void(0);" class="btn btn-secondary" disabled="">Verify</button>
+                        </td>
+                        {% endif %}
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="5">No Data Found</td>
+                </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!--Approve POPUP approvecompanybydealer-->
+<div class="modal fade" id="approvecompanybydealer" tabindex="-1" role="dialog" aria-labelledby="ApprovecompanyModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ApprovecompanyModalLabel">Are you sure?</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">Do you really want to this dealer ?</div>
+            <div class="modal-footer">
+                <a class="btn btn-success" id="get_id" href="">Confirm</a>
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal-->
+<div class="modal fade" id="deleteProductModal" tabindex="-1" role="dialog" aria-labelledby="deleteProductModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteProductModalLabel">Are you sure?</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">Do you really want to delete this records?</div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                <a class="btn btn-danger" id="delete-record" href="">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- COMPANY DETAILS -->
+<div class="modal fade" id="CompanyDetails" tabindex="-1" role="dialog"
+     aria-labelledby="incompleteUserLevelModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="max-width: 850px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">GENERAL INFORMATIONS</h5>
+            </div>
+            <div class="modal-body" style="max-height: 600px;overflow: auto;">
+                <div>
+                    <!-- <h5 class="text-center">GENERAL INFORMATIONS</h5> -->
+                    <table class="table table-bordered"  width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th width="35%" class="text-center">Field</th>
+                            <th width="65%" class="text-center">Detail</th>                            
+                        </tr>
+                        </thead>
+                        <tbody id="display_data_company">
+                            <tr>
+                                <th width="25%" class="text-center">**</th>
+                                <td>**</td>
+                            </tr> 
+                        </tbody>
+                    </table>
+                </div>
+                <br>
+                <div>
+                    <h5 class="text-center">ADDRESS DETAILS</h5>
+                    <table class="table table-bordered"  width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th width="35%" class="text-center">Field</th>
+                            <th width="65%" class="text-center">Detail</th>                            
+                        </tr>
+                        </thead>
+                        <tbody id="display_data_company1">
+                            <tr>
+                                <th width="25%" class="text-center">**</th>
+                                <td>**</td>
+                            </tr> 
+                        </tbody>
+                    </table>
+                </div>
+                <br>
+                <div>
+                    <h5 class="text-center">COMPANY DETAILS</h5>
+                    <table class="table table-bordered"  width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th width="35%" class="text-center">Field</th>
+                            <th width="65%" class="text-center">Detail</th>                            
+                        </tr>
+                        </thead>
+                        <tbody id="display_data_company2">
+                            <tr>
+                                <th width="25%" class="text-center">**</th>
+                                <td>**</td>
+                            </tr> 
+                        </tbody>
+                    </table>
+                </div>
+                <br>
+                <div>
+                    <h5 class="text-center">ADDITIONAL COMPANY DETAILS</h5>
+                    <table class="table table-bordered"  width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th width="35%" class="text-center">Field</th>
+                            <th width="65%" class="text-center">Detail</th>                            
+                        </tr>
+                        </thead>
+                        <tbody id="display_data_company3">
+                            <tr>
+                                <th width="25%" class="text-center">**</th>
+                                <td>**</td>
+                            </tr> 
+                        </tbody>
+                    </table>
+                </div>
+                <br>
+                <div>
+                    <h5 class="text-center">BANK DETAILS</h5>
+                    <table class="table table-bordered"  width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th width="35%" class="text-center">Field</th>
+                            <th width="65%" class="text-center">Detail</th>                            
+                        </tr>
+                        </thead>
+                        <tbody id="display_data_company4">
+                            <tr>
+                                <th width="25%" class="text-center">**</th>
+                                <td>**</td>
+                            </tr> 
+                        </tbody>
+                    </table>
+                </div>
+                <br>
+                <div>
+                    <h5 class="text-center">AUTH ADDITIONAL COMPANY DETAILS</h5>
+                    <table class="table table-bordered"  width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th width="35%" class="text-center">Field</th>
+                            <th width="65%" class="text-center">Detail</th>                            
+                        </tr>
+                        </thead>
+                        <tbody id="display_data_company5">
+                            <tr>
+                                <th width="25%" class="text-center">**</th>
+                                <td>**</td>
+                            </tr> 
+                        </tbody>
+                    </table>
+                </div>
+                <br>
+                <div>
+                    <h5 class="text-center">BANK STATEMENT DETAILS</h5>
+                    <table class="table table-bordered"  width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th width="35%" class="text-center">Field</th>
+                            <th width="65%" class="text-center">Detail</th>                            
+                        </tr>
+                        </thead>
+                        <tbody id="display_data_company6">
+                            <tr>
+                                <th width="25%" class="text-center">**</th>
+                                <td>**</td>
+                            </tr> 
+                        </tbody>
+                    </table>
+                </div>
+                <br>
+                <div>
+                    <h5 class="text-center">BUSINESS FINANCIAL DETAILS</h5>
+                    <table class="table table-bordered"  width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th width="35%" class="text-center">Field</th>
+                            <th width="65%" class="text-center">Detail</th>                            
+                        </tr>
+                        </thead>
+                        <tbody id="display_data_company7">
+                            <tr>
+                                <th width="25%" class="text-center">**</th>
+                                <td>**</td>
+                            </tr> 
+                        </tbody>
+                    </table>
+                </div>
+                <br>
+                <div>
+                    <h5 class="text-center">INCOME TAX RETURN DETAILS</h5>
+                    <table class="table table-bordered"  width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th width="35%" class="text-center">Field</th>
+                            <th width="65%" class="text-center">Detail</th>                            
+                        </tr>
+                        </thead>
+                        <tbody id="display_data_company8">
+                            <tr>
+                                <th width="25%" class="text-center">**</th>
+                                <td>**</td>
+                            </tr> 
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" aria-label="Close">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!----------------- REQUEST BY DEALER FOR DEALERSHIP ----------------->
+<div class="card shadow mb-4">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">REQUEST BY YOU</h6>
+            <small>This is all the request of the company which is sent by you from above table. </small>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered"  width="100%" cellspacing="0">
+                    <thead>
+                    <tr>
+                        <th width="5%" class="text-center">No.</th>
+                        <th width="25%" class="text-center">Dealer Name</th>
+                        <th width="25%" class="text-center">Location</th>
+                        <th width="15%" class="text-center">View Profile</th>
+                        <th width="15%" class="text-center">Reject</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {% if selected_companys %}
+                            {% for company_list in selected_companys %}
+                                {% if company_list.User.username not in dealerselection_request %}
+                                <tr>
+                                    <td class="text-center">{{ forloop.counter}}</td>
+                                    <td>{{company_list.User.first_name }} {{company_list.User.last_name }} - {{company_list.User.username }}</td>
+                                    <td>{{company_list.Address.city }}</td>
+                                    <td class="text-center">
+                                        <a href="javascript:void(0);" class="btn btn-primary get_jq_val" data-toggle="modal" data-target="#CompanyDetails" data-id="{{company_list.User.id}}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                                <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+                                                <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+                                            </svg>
+                                        </a>
+                                    </td>
+                                    <td class="text-center">    
+                                        <a href="javaScript:void(0);" data-toggle="modal" data-url="/remove-company-pending/?user={{company_list.User.username}}" data-id="" data-target="#deleteProductModal" class="btn btn-danger delete-btn getUrlOfDelete">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
+                                            <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"></path>
+                                        </svg>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5">No Data Found</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">REQUEST BY COMPANY</h6>
+            <small>This is all the . </small>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered"  width="100%" cellspacing="0">
+                    <thead>
+                    <tr>
+                        <th width="5%" class="text-center">No.</th>
+                        <th width="25%" class="text-center">Dealer Name</th>
+                        <th width="25%" class="text-center">Location</th>
+                        <th width="15%" class="text-center">View Profile</th>
+                        <th width="15%" class="text-center">Approve</th>
+                        <th width="15%" class="text-center">Reject</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {% if selected_companys %}
+                            {% for company_list in selected_companys %}
+                                {% if company_list.User.username in dealerselection_request %}
+                                <tr>
+                                    <td class="text-center">{{ forloop.counter}}</td>
+                                    <td>{{company_list.User.first_name }} {{company_list.User.last_name }} - {{company_list.User.username }}</td>
+                                    <td>{{company_list.Address.city }}</td>
+                                    <td class="text-center">
+                                        <a href="javascript:void(0);" class="btn btn-primary get_jq_val" data-toggle="modal" data-target="#CompanyDetails" data-id="{{company_list.User.id}}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                                <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+                                                <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+                                            </svg>
+                                        </a>
+                                    </td>
+                                    <td class="text-center">    
+                                        <a href="javascript:void(0);"  data-url="/cross-approve-by-dealer?user={{company_list.User.username}}" data-toggle="modal" data-target="#approvebydealer"
+                                        class="btn btn-primary product-edit-btn get_request_by_company_data_url">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-square-fill" viewBox="0 0 16 16">
+                                            <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm10.03 4.97a.75.75 0 0 1 .011 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.75.75 0 0 1 1.08-.022z"/>
+                                        </svg> 
+                                        </a>
+                                    </td>
+                                    <td class="text-center">    
+                                        <a href="javaScript:void(0);" data-toggle="modal" data-url ="" data-id ="{{company_list.User.username}}"
+                                        data-target="#deleteCrossQueryModal" class="btn btn-danger removeCrossQuery">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
+                                            <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>
+                                        </svg>
+                                        </a>
+                                    </td>
+                                </tr>                            
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5">No Data Found</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Delete Modal cross Query-->
+    <div class="modal fade" id="deleteCrossQueryModal" tabindex="-1" role="dialog" aria-labelledby="deleteCrossQueryModalModalLabel"
+    aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteCrossQueryModalModalLabel">Are you sure?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Do you really eant to reject the given dealer?<br><input type="text" name="" id="getCrossReason" style="border: 1px solid red;"></div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-danger" id="cross-delete-record" href="">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">APPROVED BY {{request.user.first_name|upper}} {{request.user.last_name|upper}}</h6>
+            <small>disc about this page to write here. </small>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered"  width="100%" cellspacing="0">
+                    <thead>
+                    <tr>
+                        <th width="5%" class="text-center">No.</th>
+                        <th width="25%" class="text-center">Dealer Name</th>
+                        <th width="25%" class="text-center">Location</th>
+                        <th width="15%" class="text-center">View Profile</th>
+                        <th width="15%" class="text-center">Select Product</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% if institution_dealers_pendings %}
+                        {% for dealer_list in institution_dealers_pendings %}
+                        <tr>
+                            <td class="text-center">{{ forloop.counter}}</td>
+                            <td>{{dealer_list.User.first_name }} {{dealer_list.User.last_name }} - {{dealer_list.User.username }}</td>
+                            <td>{{dealer_list.Address.city }}</td>
+                            <td class="text-center">
+                                <a href="javascript:void(0);" class="btn btn-primary get_jq_val" data-toggle="modal" data-target="#CompanyDetails" data-id="{{dealer_list.User.id}}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                        <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"></path>
+                                        <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"></path>
+                                    </svg>  
+                                </a>
+                            </td>
+                            <td class="text-center">
+                                <a href="javascript:void(0);" class="btn btn-primary get_customer_product" data-toggle="modal" data-target="#productselectbydealer" data-id="{{dealer_list.User.username}}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                        <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+                                        <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+                                    </svg>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="5">No Data Found</td>
+                    </tr>
+                    {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">MY PRODUCT</h6>
+            <small>disc about this page to write here. </small>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered"  width="100%" cellspacing="0">
+                    <thead>
+                    <tr>
+                        <th width="5%" class="text-center">No.</th>
+                        <th width="15%" class="text-center">Product Image</th>
+                        <th width="25%" class="text-center">Product Name</th>
+                        <th width="20%" class="text-center">Category</th>
+                        <th width="20%" class="text-center">Brand</th>
+                        <th width="5%" class="text-center">View Product</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>1</td>
+                            <td>1</td>
+                            <td>1</td>
+                            <td>1</td>
+                            <td>1</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- approve models approvebydealer -->
+    <div class="modal fade" id="approvebydealer" tabindex="-1" role="dialog" aria-labelledby="ApproveCompanyModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ApproveCompanyModalLabel">Are you sure?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Do you really want to select this company as a dealer ?</div>
+                <div class="modal-footer">
+                    <a class="btn btn-success" id="selectCompanyById" href="">Confirm</a>
+                    <a class="btn btn-danger" id="" href="" data-dismiss="modal">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Pop up-->
+    <div class="modal fade" id="productselectbydealer" tabindex="-1" role="dialog" aria-labelledby="ProductSelectModalLabel"
+     aria-hidden="true">
+        <div class="modal-dialog" role="document" style="max-width: 1000px;">
+            <form method="post" action="{% url 'select_product_by_dealer_sell' %}">
+                {% csrf_token %}
+                <div class="modal-content" style="padding: 10px;">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ProductSelectModalLabel">Select Your Product</h5>
+                        <input type="hidden" name="user_id" id="ajax_user_pass" value =''>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" style="max-height: 600px;overflow: auto;">
+                        <table class="table table-bordered"  width="100%" cellspacing="0">
+                            <thead>
+                            <tr>
+                                <th width="10%" class="text-center">No.</th>
+                                <th width="14%" class="text-center">Product Image</th>
+                                <th width="28%" class="text-center">Product Name</th>
+                                <th width="28%" class="text-center">Sub Category</th>
+                                <th width="10%" class="text-center">More Details</th>
+                                <th width="10%" class="text-center">Select Product</th>
+                            </tr>
+                            </thead>
+                                <tbody id="display_product_data"></tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <a type="submit" value="submit" class="btn btn-success" data-toggle="modal" data-target="#ConfirmProduct" href="">Confirm</a>
+                        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                    <div class="modal fade" id="ConfirmProduct" tabindex="-1" role="dialog" aria-labelledby="ConfirmProductModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content" style="background-color: #efeeee;">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="ConfirmProductModalLabel">Are you sure?</h5>
+                                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">×</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">Do you really want to become a dealer to this Product?</div>
+                            <div class="modal-footer">
+                                <button class="btn btn-success" type="submit" value="submit">Yes</button>
+                                <a class="btn btn-secondary" id="delete-record" href="">No</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+{% block customJsBlock %}
+<!-- Page level plugins -->
+<script src='{% static "veloce-store/vendor/datatables/jquery.dataTables.min.js" %}'></script>
+<script src='{% static "veloce-store/vendor/datatables/dataTables.bootstrap4.min.js" %}'></script>
+<!-- Page level custom scripts -->
+<script src='{% static "veloce-store/vendor/datatables/datatables-demo.js" %}'></script>
+<script src='{% static "veloce-store/js/product-page.js" %}'></script>
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
+
+<script>
+    //alert('done');
+    $(document).ready(function(){
+        $('.get_request_by_company_data_url').on('click',function(){
+            var _url = $(this).data("url");
+            $('#selectCompanyById').attr('href',_url);
+            console.log(_url);
+        });
+
+        $('.get_customer_product').on('click',function(){
+            var _id = $(this).data("id");
+            var token = $("input[name=csrfmiddlewaretoken]").val();
+
+            $.ajax({
+                url: "{% url 'get_product_by_id' %}",
+                type: "post",
+                data:{"id": _id,'csrfmiddlewaretoken': token},
+                success: function (data) {
+                    console.log(data.data);
+                    $('#display_product_data').empty();
+                    $(data.data).each(function(index,value){ 
+                        var index = index+1
+                        var product_data1 = "<tr>"+
+                            "<td style='text-align: center;'>"+index+"</td>"+
+                            "<td style='text-align: center;'><img src='/media/"+value.product_img+"'></td>"+
+                            "<td>"+value.Product_name+"</td>"+
+                            "<td>"+value.Product_sub_category+"</td>"+
+                            "<td><a href='/product/"+value.Product_slug+"/' target='blank'>VIEW</a></td>";
+                            // "<td><input type='checkbox' name='checkbox_value' value ='"+value.product_id+"'></td>";
+                            
+                            var product_data2=""
+                            if (value.is_status === 'Pending') {
+                                var product_data2 = "<td><button class='btn' style='background-color: #0d1013;border-color: #0d1013; color: white;' disabled >"+value.is_status+"</button></td>";
+                            }
+                            else if(value.is_status === 'Approved') {
+                                var product_data2 = "<td><button class='btn' style='background-color: green;border-color: green; color: white;' disabled >"+value.is_status+"</button></td>";
+                            }
+                            else if(value.is_status === 'Rejected') {
+                                var product_data2 = "<td><button class='btn' style='background-color: #cc0000;border-color: #cc0000; color: white;' disabled >"+value.is_status+"</button></td>";
+                            } else {
+                                var product_data2 = "<td style='text-align: center;'><input type='checkbox'  name='checkbox_value' value ='"+value.product_id+"'></td>";
+                            } 
+                        var product_data3 = "</tr>";
+
+                        var product_data = product_data1+product_data2+product_data3;
+                
+                        $('#display_product_data').append(product_data)
+                        $('#ajax_user_pass').val(value.product_user)
+                    });
+                    
+                },
+                error:function(data){
+                },
+
+            });
+
+
+        });
+
+        $('.a_company_select').on('click',function(){
+            var _id = $(this).data("id");
+            $('#get_id').attr('data-id',_id);
+        });
+
+        $('.getUrlOfDelete').on('click',function(){
+            var _url = $(this).data("url");
+            $('#delete-record').attr('href',_url);
+        });
+
+        $('#get_id').on('click',function(e){
+            //e.preventDefault();
+            var _id = $(this).data("id");
+            var token = $("input[name=csrfmiddlewaretoken]").val();
+
+            $.ajax({
+                url: "{% url 'ajax_approve_company' %}",
+                type: "post",
+                data:{"id": _id,'csrfmiddlewaretoken': token},
+                success: function (data) {
+                    //console.log('done',data);
+                    var send_msg = " <div class='alert alert-"+data.alart_class+" alert-dismissible mt-3' role='alert'>"+
+                            "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>"+
+                                "<span aria-hidden='true'>×</span>"+
+                            "</button>"+ data.messages
+                        "</div>";
+                
+                    $('.msg_ajax_add').html(send_msg)
+                },
+                error:function(data){
+                },
+
+            });
+        });
+
+        $('.get_jq_val').on('click',function(){
+            var _id = $(this).data("id");
+            var token = $("input[name=csrfmiddlewaretoken]").val();
+            //alert(_id);
+            $.ajax({
+                    url: "{% url 'approveby_dealer' %}",
+                    type: "post",
+                    data:{"id": _id,'csrfmiddlewaretoken': token},
+                    success: function (data) {
+                        console.log(data.ajax_company);
+                        $('#display_data_company').empty();
+                        $('#display_data_company1').empty();
+                        $('#display_data_company2').empty();
+                        $('#display_data_company3').empty();
+                        $('#display_data_company4').empty();
+                        $('#display_data_company5').empty();
+                        $('#display_data_company6').empty();
+                        $('#display_data_company7').empty();
+                        $('#display_data_company8').empty();
+                        //for (var key in data.ajax_company)
+                        //{
+                            //console.log(data.ajax_company[key]);
+                            //console.log(data.ajax_company[key]);
+                        //}
+                        var common_error = "<tr>"+
+                                "<th width='25%' class='text-center'>Fields</th>"+
+                                "<td> This fields are not uploded by user or does not get</td>"+
+                            "</tr>";
+
+                        if (data.ajax_company.User != null) {
+                            var general_details = "<tr>"+
+                                            "<th width='25%' class='text-center'>Full Name</th>"+
+                                            "<td>"+data.ajax_company.User.first_name+' '+data.ajax_company.General.father_husband_no+' '+data.ajax_company.User.last_name+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>Father/Husband Name</th>"+
+                                            "<td>"+data.ajax_company.General.father_husband_no+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>Email</th>"+
+                                            "<td>"+data.ajax_company.User.email+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>Phone Number</th>"+
+                                            "<td>"+data.ajax_company.Phone.phone_number+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>Birthdate</th>"+
+                                            "<td>"+data.ajax_company.General.birthdate+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>Gender</th>"+
+                                            "<td>"+data.ajax_company.General.gender+"</td>"+
+                                        "</tr>"+
+                                        // "<tr>"+
+                                        //     "<th width='25%' class='text-center'>Address</th>"+
+                                        //     "<td>"+data.ajax_company.Address.unit_number+ ", " +data.ajax_company.Address.street_address+"</td>"+
+                                        // "</tr>"+
+                                        // "<tr>"+
+                                        //     "<th width='25%' class='text-center'>City - State</th>"+
+                                        //     "<td>"+data.ajax_company.Address.city+ " - " +data.ajax_company.Address.state+"</td>"+
+                                        // "</tr>"+
+                                        // "<tr>"+
+                                        //     "<th width='25%' class='text-center'>state</th>"+
+                                        //     "<td>"+data.ajax_company.Address.state+"</td>"+
+                                        // "</tr>"+
+                                        // "<tr>"+
+                                        //     "<th width='25%' class='text-center'>Pin Code</th>"+
+                                        //     "<td>"+data.ajax_company.Address.pin_code+"</td>"+
+                                        // "</tr>"+
+                                        
+                                        // "<tr>"+
+                                        //     "<th width='25%' class='text-center'>Residence proof</th>"+
+                                        //     "<td><a href='"+data.ajax_company.Address.proof+"'>proof</a></td>"+
+                                        // "</tr>"+
+                                        // "<tr>"+
+                                        //     "<th width='25%' class='text-center'>Aadhar Number</th>"+
+                                        //     "<td>"+data.ajax_company.AuthAdditionalCompanyDetails.aadhar_number+"</td>"+
+                                        // "</tr>"+
+                                        // "<tr>"+
+                                        //     "<th width='25%' class='text-center'>PAN Number</th>"+
+                                        //     "<td>"+data.ajax_company.AdditionalCompanyDetails.pan_number+"</td>"+
+                                        // "</tr>"+
+                                        
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>Dependents</th>"+
+                                            "<td>"+data.ajax_company.General.dependents+"</td>"+
+                                        "</tr>"+
+                                        // "<tr>"+
+                                        //     "<th width='25%' class='text-center'>Contact Number</th>"+
+                                        //     "<td>"+data.ajax_company.Address.tel_number+"</td>"+
+                                        // "</tr>"+
+                                        
+                                        
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>Net Monthly Income</th>"+
+                                            "<td>"+data.ajax_company.General.net_monthly_income+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>associated_professional_institute</th>"+
+                                            "<td>"+data.ajax_company.General.associated_professional_institute+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>education_level</th>"+
+                                            "<td>"+data.ajax_company.General.education_level+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>marital_status</th>"+
+                                            "<td>"+data.ajax_company.General.marital_status+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>org_name</th>"+
+                                            "<td>"+data.ajax_company.General.org_name+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>pos_in_company</th>"+
+                                            "<td>"+data.ajax_company.General.pos_in_company+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>registration_number</th>"+
+                                            "<td>"+data.ajax_company.General.registration_number+"</td>"+
+                                        "</tr>";
+
+                                $('#display_data_company').html(general_details)
+
+                            
+                        } else {
+                            general_details = common_error
+                            $('#display_data_company').html(general_details)
+                        }
+
+                        if (data.ajax_company.CompanyDetails != null) {
+                            var company_details = "<tr>"+
+                                            "<th width='25%' class='text-center'>aadhar_number</th>"+
+                                            "<td>"+data.ajax_company.CompanyDetails.aadhar_number+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>din_number</th>"+
+                                            "<td>"+data.ajax_company.CompanyDetails.din_number+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>pan_number</th>"+
+                                            "<td>"+data.ajax_company.CompanyDetails.pan_number+"</td>"+
+                                        "</tr>";
+                                $('#display_data_company2').html(company_details)
+                            
+                        } else {
+                            company_details = common_error
+                            $('#display_data_company2').html(company_details)
+                        }
+
+                        if (data.ajax_company.Address != null) {
+                            var address_details =    "<tr>"+
+                                            "<th width='25%' class='text-center'>city</th>"+
+                                            "<td>"+data.ajax_company.Address.city+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>Effective Month</th>"+
+                                            "<td>"+data.ajax_company.Address.effective_month+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>effective_year</th>"+
+                                            "<td>"+data.ajax_company.Address.effective_year+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>pin_code</th>"+
+                                            "<td>"+data.ajax_company.Address.pin_code+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>state</th>"+
+                                            "<td>"+data.ajax_company.Address.state+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>tel_number</th>"+
+                                            "<td>"+data.ajax_company.Address.tel_number+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>unit_number</th>"+
+                                            "<td>"+data.ajax_company.Address.unit_number+"</td>"+
+                                        "</tr>";
+                            $('#display_data_company1').html(address_details)
+                            
+                        } else {
+                            address_details = common_error
+                            $('#display_data_company1').html(address_details)
+                        }             
+                            
+                                        
+                        if (data.ajax_company.User != null) {
+                            var additional_company_details =    "<tr>"+
+                                            "<th width='25%' class='text-center'>gst_number</th>"+
+                                            "<td>"+data.ajax_company.AdditionalCompanyDetails.gst_number+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>pan_number</th>"+
+                                            "<td>"+data.ajax_company.AdditionalCompanyDetails.pan_number+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>udyog_aadhar_number</th>"+
+                                            "<td>"+data.ajax_company.AdditionalCompanyDetails.udyog_aadhar_number+"</td>"+
+                                        "</tr>";
+                                $('#display_data_company3').html(additional_company_details)
+                        } else {
+                            additional_company_details = common_error
+                            $('#display_data_company3').html(additional_company_details)
+                        }
+
+                                
+                                    
+                        if (data.ajax_company.Bank != null) {
+                            var bank_details = "<tr>"+
+                                            "<th width='25%' class='text-center'>account_no</th>"+
+                                            "<td>"+data.ajax_company.Bank.account_no+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>bank_acc_type</th>"+
+                                            "<td>"+data.ajax_company.Bank.bank_acc_type+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>bank_address</th>"+
+                                            "<td>"+data.ajax_company.Bank.bank_address+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>bank_name</th>"+
+                                            "<td>"+data.ajax_company.Bank.bank_name+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>branch_name</th>"+
+                                            "<td>"+data.ajax_company.Bank.branch_name+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>ifsc_code</th>"+
+                                            "<td>"+data.ajax_company.Bank.ifsc_code+"</td>"+
+                                        "</tr>";
+                                $('#display_data_company4').html(bank_details)
+                            
+                        } else {
+                            bank_details = common_error
+                            $('#display_data_company4').html(bank_details)
+                        }
+                                        
+                                
+
+                                    
+                        if (data.ajax_company.AuthAdditionalCompanyDetails != null) {
+                            var authadditionalcompany_details ="<tr>"+
+                                            "<th width='25%' class='text-center'>aadhar_number</th>"+
+                                            "<td>"+data.ajax_company.AuthAdditionalCompanyDetails.aadhar_number+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>din_number</th>"+
+                                            "<td>"+data.ajax_company.AuthAdditionalCompanyDetails.din_number+"</td>"+
+                                        "</tr>";
+                                $('#display_data_company5').html(authadditionalcompany_details)
+                        } else {
+                            authadditionalcompany_details = common_error
+                            $('#display_data_company5').html(authadditionalcompany_details)
+                        }                    
+                                
+    
+                        // THIS IS 6 DISPLAY DATA
+                        if (data.ajax_company.BankStatement != null) {
+                            var arr =  data.ajax_company.BankStatement;
+                            for( var i = 0, len = arr.length; i < len; i++ ) {
+                                obj = arr[i]
+                                $.each(obj,function(index,value){ 
+                                    //console.log(index,value.month);
+                                    var bank_statement_details = "<tr>"+
+                                                                    "<th width='25%' class='text-center'>Statement "+value.year+"</th>"+
+                                                                    "<td> M: "+value.month+" Y: "+value.year+" " + " <i class='fa fa-check-circle' style='color: #009957;' aria-hidden='true'></i></td>"+
+                                                                "</tr>"
+                                    $('#display_data_company6').append(bank_statement_details);
+                                    
+                                });
+                            };
+                        } else {
+                        }
+                        
+
+                        // THIS IS 7 DISPLAY DATA
+                        if (data.ajax_company.BusinessFinancial != null) {
+                            var arr =  data.ajax_company.BusinessFinancial;
+                            for( var i = 0, len = arr.length; i < len; i++ ) {
+                                obj = arr[i]
+                                $.each(obj,function(index,value){ 
+                                    //console.log(index,value.capital_reserves);
+                                    var business_financial_details = "<tr>"+
+                                                                    "<th width='25%' class='text-center' colspan='2'>" +index+ " <i class='fa fa-check-circle' style='color: #009957;' aria-hidden='true'></i></th>"+
+                                                                "</tr>"+
+                                                                "<tr>"+
+                                                                    "<th width='25%' class='text-center'>capital_reserves</th>"+
+                                                                    "<td>"+value.capital_reserves+ "</td>"+
+                                                                "</tr>"+
+                                                                "<tr>"+
+                                                                    "<th width='25%' class='text-center'>current_assets</th>"+
+                                                                    "<td>"+value.current_assets+ "</td>"+
+                                                                "</tr>"+
+                                                                "<tr>"+
+                                                                    "<th width='25%' class='text-center'>current_liablities</th>"+
+                                                                    "<td>"+value.current_liablities+ "</td>"+
+                                                                "</tr>"+
+                                                                "<tr>"+
+                                                                    "<th width='25%' class='text-center'>depreciate</th>"+
+                                                                    "<td>"+value.depreciate+ "</td>"+
+                                                                "</tr>"+
+                                                                "<tr>"+
+                                                                    "<th width='25%' class='text-center'>finance_year</th>"+
+                                                                    "<td>"+value.finance_year+ "</td>"+
+                                                                "</tr>"+
+                                                                "<tr>"+
+                                                                    "<th width='25%' class='text-center'>interest_expense</th>"+
+                                                                    "<td>"+value.interest_expense+ "</td>"+
+                                                                "</tr>"+
+                                                                "<tr>"+
+                                                                    "<th width='25%' class='text-center'>profit_befor_interest</th>"+
+                                                                    "<td>"+value.profit_befor_interest+ "</td>"+
+                                                                "</tr>"+
+                                                                "<tr>"+
+                                                                    "<th width='25%' class='text-center'>profite_after_tax</th>"+
+                                                                    "<td>"+value.profite_after_tax+ "</td>"+
+                                                                "</tr>"+
+                                                                "<tr>"+
+                                                                    "<th width='25%' class='text-center'>tax</th>"+
+                                                                    "<td>"+value.tax+ "</td>"+
+                                                                "</tr>"+
+                                                                "<tr>"+
+                                                                    "<th width='25%' class='text-center'>total_borrowing</th>"+
+                                                                    "<td>"+value.total_borrowing+ "</td>"+
+                                                                "</tr>"+
+                                                                "<tr>"+
+                                                                    "<th width='25%' class='text-center'>turnover_revenue</th>"+
+                                                                    "<td>"+value.turnover_revenue+ "</td>"+
+                                                                "</tr>"
+                                    $('#display_data_company7').append(business_financial_details);
+                                    
+                                });
+                            };
+                        } else {
+                        }
+
+                        // THIS IS 8 DISPLAY DATA
+                        if (data.ajax_company.IncomeTaxReturn != null) {
+                            var arr =  data.ajax_company.IncomeTaxReturn;
+                            for( var i = 0, len = arr.length; i < len; i++ ) {
+                                obj = arr[i]
+                                $.each(obj,function(index,value){ 
+                                    //console.log(index,value.capital_reserves);
+                                    var income_tax_return_details = "<tr>"+
+                                                                    "<th width='25%' class='text-center'>years"+value.year+"</th>"+
+                                                                    "<td><i class='fa fa-check-circle' style='color: #009957;' aria-hidden='true'></i></td>"+
+                                                                "</tr>"
+                                                                
+                                    $('#display_data_company8').append(income_tax_return_details);
+                                    
+                                });
+                            };
+                        } else {
+                        }
+
+                        //console.log(data.ajax_company.first_name);
+                    },
+
+            });
+        });
+
+        $('.removeCrossQuery').on('click',function(){
+            var _id = $(this).data("id");
+            $('#cross-delete-record').attr('data-id',_id);
+        });
+
+        $('#cross-delete-record').on('click',function(e){
+            var email = $(this).data("id");
+            var reason = $('#getCrossReason').val();
+            var token = $("input[name=csrfmiddlewaretoken]").val();
+            if (reason != ''){
+                //alert('ok');
+                $.ajax({
+                url: "{% url 'dealer_cross_delete_record_reason' %}",
+                type: "post",
+                data:{"reason":reason,'email':email,'csrfmiddlewaretoken': token},
+                success: function (data) {
+                    console.log('success',data);
+                    }
+                });
+            }else{
+                e.preventDefault()
+                alert('please enter reason');
+            }
+            //alert(reason);
+        });
+
+
+    }); // this is the open tag
+
+
+</script>
+{% endblock %}

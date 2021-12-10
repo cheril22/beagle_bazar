@@ -1,0 +1,257 @@
+{% extends 'veloce/layout/index.html' %}
+{% load static %}
+
+{% block customCssBlock %}
+<link rel="stylesheet" href='{% static "veloce-store/css/home-page.css" %}'>
+<link rel="stylesheet" href='{% static "veloce-store/css/compare.css" %}'>
+{% endblock %}
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'compare_product' %}">Compare Products</a></li>
+        <li class="breadcrumb-item active"><a href="javascript:void(0);">Compare Product Details</a></li>
+      </ol>
+    </nav>
+{% endblock breadcrumb %}
+{% block content %}
+<div class="row-fluid">
+    <div class="col-12" style="padding: 0">
+        <h2>Compare Products</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="container pb-3 mb-2">
+        <div class="comparison-table">
+            <table class="table table-bordered">
+                <thead class="bg-secondary">
+                <tr>
+                    <td class="align-middle">
+                        <select class="form-control custom-select" id="compare-criteria" data-filter="trigger">
+                            <option value="all">Comparison criteria *</option>
+                            <option value="summary">Summary</option>
+                            <option value="specification">Specification</option>
+                        </select><small class="form-text text-muted">* Choose criteria to filter table below.</small>
+                    </td>
+                    <td>
+                        <div class="comparison-item">
+                            <a class="comparison-item-thumb" href="{% url 'product_details' product1_details.slug %}"><img style="height: 200px"
+                                    src="{{product1_img}}"
+                                    alt="{{product1_details.name}}"></a><a class="comparison-item-title" href="{% url 'product_details' product1_details.slug %}">{{product1_details.name}}</a>
+                            <a href="javascript:void(0);" class="btn btn-pill btn-outline-primary btn-sm inq-btn" data-product-id="{{ product1_details.id }}" style="color: white; background-color: #009958; border: #009958;" data-toggle="modal" data-target="#inquiryModal">Inquiry</a>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="comparison-item">
+                            <a class="comparison-item-thumb" href="{% url 'product_details' product2_details.slug %}"><img style="height: 200px"
+                                    src="{{product2_img}}"
+                                    alt="{{product2_details.name}}"></a><a class="comparison-item-title" href="{% url 'product_details' product2_details.slug %}">{{product2_details.name}}</a>
+                                    <a href="javascript:void(0);" class="btn btn-pill btn-outline-primary btn-sm inq-btn" data-product-id="{{ product2_details.id }}" style="color: white; background-color: #009958; border: #009958;" data-toggle="modal" data-target="#inquiryModal">Inquiry</a>
+                        </div>
+                    </td>
+                    {%if product3_details%}
+                        <td>
+                            <div class="comparison-item">
+                                <a class="comparison-item-thumb" href="{% url 'product_details' product3_details.slug %}"><img style="height: 200px"
+                                        src="{{product3_img}}"
+                                        alt="{{product3_details.name}}"></a><a class="comparison-item-title" href="{% url 'product_details' product3_details.slug %}">{{product3_details.name}}</a>
+                                <a href="javascript:void(0);" class="btn btn-pill btn-outline-primary btn-sm inq-btn" data-product-id="{{ product3_details.id }}" style="color: white; background-color: #009958; border: #009958;" data-toggle="modal" data-target="#inquiryModal">Inquiry</a>
+                            </div>
+                        </td>
+                    {%endif%}
+                </tr>
+                </thead>
+                <tbody id="summary" data-filter="target">
+                <tr class="bg-secondary">
+                    <th class="text-uppercase">Summary</th>
+                    <td><span class="text-dark font-weight-semibold">{{product1_details.name}}</span></td>
+                    <td><span class="text-dark font-weight-semibold">{{product2_details.name}}</span></td>
+                    {%if product3_details%}
+                        <td><span class="text-dark font-weight-semibold">{{product3_details.name}}</span></td>
+                    {%endif%}
+                </tr>
+                <tr>
+                    <th>Product Type</th>
+                    <td>{{product1_details.sub_category.name}}</td>
+                    <td>{{product2_details.sub_category.name}}</td>
+                    {%if product3_details%}
+                        <td>{{product3_details.sub_category.name}}</td>
+                    {%endif%}
+                </tr>
+
+                    <tr>
+                        <th>Price</th>
+                        <td>{% if product1_details.product_prices.all %}{{product1_details.product_prices.all.first.amt_before_tax}} {{ product1_details.product_prices.all.first.get_currency_display|upper }}{% endif %}</td>
+                        <td>{% if product1_details.product_prices.all %}{{product2_details.product_prices.all.first.amt_before_tax}} {{ product2_details.product_prices.all.first.get_currency_display|upper }}{% endif %}</td>
+                        {%if product3_details%}
+                            <td>{% if product1_details.product_prices.all %}{{product3_details.product_prices.all.first.amt_before_tax}} {{ product3_details.product_prices.all.first.get_currency_display|upper }}{% endif %}</td>
+                        {%endif%}
+                    </tr>
+
+                <tr>
+                    <th>After Warranty Service</th>
+                    <td>{{ product1_details.get_after_warranty_service_display }}</td>
+                    <td>{{ product2_details.get_after_warranty_service_display }}</td>
+                    {%if product3_details%}
+                        <td>{{ product3_details.get_after_warranty_service_display }}</td>
+                    {%endif%}
+                </tr>
+                <tr>
+                    <th>Local Service Location</th>
+                    <td>{{ product1_details.local_service_location }}</td>
+                    <td>{{ product2_details.local_service_location }}</td>
+                    {%if product3_details%}
+                        <td>{{ product3_details.local_service_location }}</td>
+                    {%endif%}
+                </tr>
+                <tr>
+                    <th>Showroom Location</th>
+                    <td>{{ product1_details.showroom_location }}</td>
+                    <td>{{ product2_details.showroom_location }}</td>
+                    {%if product3_details%}
+                        <td>{{ product3_details.showroom_location }}</td>
+                    {%endif%}
+                </tr>
+                <tr>
+                    <th>Condition</th>
+                    <td>{{ product1_details.get_condition_display }}</td>
+                    <td>{{ product2_details.get_condition_display }}</td>
+                    {%if product3_details%}
+                        <td>{{ product3_details.get_condition_display }}</td>
+                    {%endif%}
+                </tr>
+                <tr>
+                    <th>Brand Name</th>
+                    <td>{{ product1_details.brand_name }}</td>
+                    <td>{{ product2_details.brand_name }}</td>
+                    {%if product3_details%}
+                        <td>{{ product3_details.brand_name }}</td>
+                    {%endif%}
+                </tr>
+                <tr>
+                    <th>Place of Origin</th>
+                    <td>{{ product1_details.place_of_origin }}</td>
+                    <td>{{ product2_details.place_of_origin }}</td>
+                    {%if product3_details%}
+                        <td>{{ product3_details.place_of_origin }}</td>
+                    {%endif%}
+                </tr>
+                <tr>
+                    <th>Certification</th>
+                    <td>{{ product1_details.certification }}</td>
+                    <td>{{ product2_details.certification }}</td>
+                    {%if product3_details%}
+                        <td>{{ product3_details.certification }}</td>
+                    {%endif%}
+                </tr>
+                <tr>
+                    <th>Warranty</th>
+                    <td>{{ product1_details.warranty }}</td>
+                    <td>{{ product2_details.warranty }}</td>
+                    {%if product3_details%}
+                        <td>{{ product3_details.warranty }}</td>
+                    {%endif%}
+                </tr>
+                <tr>
+                    <th>After-sales Service Provided</th>
+                    <td>{{ product1_details.get_after_sales_service_provided_display }}</td>
+                    <td>{{ product2_details.get_after_sales_service_provided_display }}</td>
+                    {%if product3_details%}
+                        <td>{{ product3_details.get_after_sales_service_provided_display }}</td>
+                    {%endif%}
+                </tr>
+                </tbody>
+                <tbody id="specification" data-filter="target">
+                <tr class="bg-secondary">
+                    <th class="text-uppercase">Specification</th>
+                    <td><span class="text-dark font-weight-semibold">{{product1_details.name}}</span></td>
+                    <td><span class="text-dark font-weight-semibold">{{product2_details.name}}</span></td>
+                    {%if product3_details%}
+                        <td><span class="text-dark font-weight-semibold">{{product3_details.name}}</span></td>
+                    {%endif%}
+                </tr>
+                <tr>
+                    <th>Selling Units</th>
+                    <td>{{ product1_details.product_delivery_detail.selling_units }}</td>
+                    <td>{{ product2_details.product_delivery_detail.selling_units }}</td>
+                    {%if product3_details%}
+                        <td>{{ product3_details.product_delivery_detail.selling_units }}</td>
+                    {%endif%}
+                </tr>
+                <tr>
+                    <th>Single package size</th>
+                    <td>{{ product1_details.product_delivery_detail.single_package_size }}</td>
+                    <td>{{ product2_details.product_delivery_detail.single_package_size }}</td>
+                    {%if product3_details%}
+                        <td>{{ product3_details.product_delivery_detail.single_package_size }}</td>
+                    {%endif%}
+                </tr>
+                <tr>
+                    <th>Single gross weight</th>
+                    <td>{{ product1_details.product_delivery_detail.single_gross_weight }}</td>
+                    <td>{{ product2_details.product_delivery_detail.single_gross_weight }}</td>
+                    {%if product3_details%}
+                        <td>{{ product3_details.product_delivery_detail.single_gross_weight }}</td>
+                    {%endif%}
+                </tr>
+                <tr>
+                    <th>Package Type</th>
+                    <td>{{ product1_details.product_delivery_detail.get_package_type_display }}</td>
+                    <td>{{ product2_details.product_delivery_detail.get_package_type_display }}</td>
+                    {%if product3_details%}
+                        <td>{{ product3_details.product_delivery_detail.get_package_type_display }}</td>
+                    {%endif%}
+                </tr>
+                <tr>
+                    <th>Packing size</th>
+                    <td>{{ product1_details.product_delivery_detail.packing_size }}</td>
+                    <td>{{ product2_details.product_delivery_detail.packing_size }}</td>
+                    {%if product3_details%}
+                        <td>{{ product3_details.product_delivery_detail.packing_size }}</td>
+                    {%endif%}
+                </tr>
+                <tr>
+                    <th>Packing weight</th>
+                    <td>{{ product1_details.product_delivery_detail.packing_weight }}</td>
+                    <td>{{ product2_details.product_delivery_detail.packing_weight }}</td>
+                    {%if product3_details%}
+                        <td>{{ product3_details.product_delivery_detail.packing_weight }}</td>
+                    {%endif%}
+                </tr>
+                <tr>
+                    <th>Picture</th>
+                    <td><img src='{{ product1_details.product_delivery_detail.picture.name|slice:"6:" }}' class="img-thumbnail" style="height: 5vh;"></td>
+                    <td><img src='{{ product2_details.product_delivery_detail.picture.name|slice:"6:" }}' class="img-thumbnail" style="height: 5vh;"></td>
+                    {%if product3_details%}
+                        <td><img src='{{ product3_details.product_delivery_detail.picture.name|slice:"6:" }}' class="img-thumbnail" style="height: 5vh;"></td>
+                    {%endif%}
+                </tr>
+                <tr>
+                    <th>Lead Time</th>
+                    <td>{{ product1_details.product_delivery_detail.lead_time }}</td>
+                    <td>{{ product2_details.product_delivery_detail.lead_time }}</td>
+                    {%if product3_details%}
+                        <td>{{ product3_details.product_delivery_detail.lead_time }}</td>
+                    {%endif%}
+                </tr>
+                <tr>
+                    <th>Shipping Time</th>
+                    <td>{{ product1_details.product_delivery_detail.shipping_time }}</td>
+                    <td>{{ product2_details.product_delivery_detail.shipping_time }}</td>
+                    {%if product3_details%}
+                        <td>{{ product3_details.product_delivery_detail.shipping_time }}</td>
+                    {%endif%}
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="compare-btn">
+            <a class="btn btn-secondary" href="{% url 'compare_product' %}">Back</a>
+        </div>
+    </div>
+    {% include 'veloce/modal/inquiry-modal.html' %}
+</div>
+{% endblock %}
+{% block customJsBlock %}
+<script src='{% static "veloce-store/js/product-page.js" %}'></script>
+{% endblock %}

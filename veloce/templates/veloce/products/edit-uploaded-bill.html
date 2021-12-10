@@ -1,0 +1,475 @@
+{% extends 'veloce/layout/index.html' %}
+{% load widget_tweaks %}
+{% load auth_tag %}
+{% load static %}
+
+{% block title %}Edit Uploaded Bill{% endblock %}
+{% block customCssBlock %}
+<link rel="stylesheet" href='{% static "veloce-store/css/home-page.css" %}'>
+<style>
+    .removeImg {
+        position: absolute;
+        top: 2px;
+        /* right: 52px; */
+        left: 34px;
+        z-index: 100;
+        background-color: red;
+        padding: 3px 2px 2px;
+        color: #ffff;
+        font-weight: bolder;
+        cursor: pointer;
+        opacity: 0.5;
+        font-size: 14px;
+        line-height: 10px;
+        border-radius: 50%;
+    }
+
+    .removePdf {
+        position: absolute;
+        top: 2px;
+        /* right: 52px; */
+        left: 16px;
+        z-index: 100;
+        background-color: red;
+        padding: 3px 2px 2px;
+        color: #ffff;
+        font-weight: bolder;
+        cursor: pointer;
+        opacity: 0.5;
+        font-size: 14px;
+        line-height: 10px;
+        border-radius: 50%;
+    }
+
+
+    .main_img_rm {
+        position: absolute;
+        top: 2px;
+        left: 34px;
+        z-index: 100;
+        background-color: red;
+        padding: 3px 2px 2px;
+        color: #ffff;
+        font-weight: bolder;
+        cursor: pointer;
+        opacity: 0.5;
+        font-size: 14px;
+        line-height: 10px;
+        border-radius: 50%;
+    }
+
+    .main_video_rm {
+        position: absolute;
+        top: 2px;
+        left: 135px;
+        z-index: 100;
+        background-color: red;
+        padding: 3px 2px 2px;
+        color: #ffff;
+        font-weight: bolder;
+        cursor: pointer;
+        opacity: 0.5;
+        font-size: 14px;
+        line-height: 10px;
+        border-radius: 50%;
+    }
+
+    input[type="file"] {
+    display: block;
+    }
+    .imageThumb {
+    max-height: 23px;
+    border: 1px solid;
+    cursor: pointer;
+    }
+
+    .img-wrap {
+        position: relative;
+        width: 50px;
+        float: left;
+        display: inline-flex;
+        margin-top: 7px;
+        vertical-align: top;
+    }
+    .img-wrap-video {
+        position: relative;
+        width: 152px;
+        float: left;
+        display: inline-flex;
+        margin-top: 7px;
+        vertical-align: top;
+    }
+    .imageThumb {
+        max-height: 40px;
+        border: 1px solid;
+        cursor: pointer;
+        width: 48px;
+        height: 40px;
+    }
+    .videoThumb {
+        max-height: 100px;
+        border: 1px solid;
+        cursor: pointer;
+        width: 150px;
+        height: 100px;
+    }
+    .remove{
+        position: absolute;
+        top: 2px;
+        right: 4px;
+        z-index: 100;
+        background-color: red;
+        padding: 3px 2px 2px;
+        color: #ffff;
+        font-weight: bolder;
+        cursor: pointer;
+        opacity: 0.5;
+        font-size: 14px;
+        line-height: 10px;
+        border-radius: 50%;
+    }
+    .remove-video{
+        position: absolute;
+        top: 2px;
+        left: 135px;
+        z-index: 100;
+        background-color: red;
+        padding: 3px 2px 2px;
+        color: #ffff;
+        font-weight: bolder;
+        cursor: pointer;
+        opacity: 0.5;
+        font-size: 14px;
+        line-height: 10px;
+        border-radius: 50%;
+    }
+    .preview-modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 10000 !important; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
+    }
+
+    /* Modal Content (image) */
+    .preview-modal-content {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 700px;
+    }
+
+    /* Caption of Modal Image */
+    #caption {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 700px;
+    text-align: center;
+    color: #ccc;
+    padding: 10px 0;
+    height: 150px;
+    }
+
+    /* Add Animation */
+    .preview-modal-content, #caption {
+    -webkit-animation-name: zoom;
+    -webkit-animation-duration: 0.6s;
+    animation-name: zoom;
+    animation-duration: 0.6s;
+    }
+
+    @-webkit-keyframes zoom {
+    from {-webkit-transform:scale(0)}
+    to {-webkit-transform:scale(1)}
+    }
+
+    @keyframes zoom {
+    from {transform:scale(0)}
+    to {transform:scale(1)}
+    }
+
+    /* The Close Button */
+    .close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #c1c1c1;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+    }
+
+    .close:hover,
+    .close:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+    }
+
+    /* 100% Image Width on Smaller Screens */
+    @media only screen and (max-width: 700px){
+    .preview-modal-content {
+        width: 100%;
+    }
+    }
+    .pdf-wrap {
+    position: relative;
+    width: 32px;
+    height: 20px;
+    float: left;
+    display: inline-block;
+    margin-top: 8px;
+    vertical-align: top;
+    margin-left: 5px;
+}
+
+    .removeImg {
+        position: absolute;
+        top: 2px;
+        /* right: 52px; */
+        left: 34px;
+        z-index: 100;
+        background-color: red;
+        padding: 3px 2px 2px;
+        color: #ffff;
+        font-weight: bolder;
+        cursor: pointer;
+        opacity: 0.5;
+        font-size: 14px;
+        line-height: 10px;
+        border-radius: 50%;
+    }
+
+    .removePdf {
+        position: absolute;
+        top: 2px;
+        /* right: 52px; */
+        left: 16px;
+        z-index: 100;
+        background-color: red;
+        padding: 3px 2px 2px;
+        color: #ffff;
+        font-weight: bolder;
+        cursor: pointer;
+        opacity: 0.5;
+        font-size: 14px;
+        line-height: 10px;
+        border-radius: 50%;
+    }
+
+
+    .main_img_rm {
+        position: absolute;
+        top: 2px;
+        left: 34px;
+        z-index: 100;
+        background-color: red;
+        padding: 3px 2px 2px;
+        color: #ffff;
+        font-weight: bolder;
+        cursor: pointer;
+        opacity: 0.5;
+        font-size: 14px;
+        line-height: 10px;
+        border-radius: 50%;
+    }
+    label.required:after {
+            content: "*";
+            color: #da1113;
+        }
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'inquiry_lists' %}">Inquiries</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'edit_uploaded_bill' bill_id %}">{{bill_no}}</a></li>
+      </ol>
+    </nav>
+{% endblock breadcrumb %}
+
+{% block content %}
+<!-- Page Heading -->
+<h1 class="h3 mb-2 text-gray-800 text-left">  </h1>
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary"> Uploaded Bill </h6>
+    </div>
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data" id="edit-bill-upload" novalidate>
+            {% csrf_token %}
+            <div class="form-group row {%if is_product_financed %}is-financed {%endif%}">
+                {% for field in get_bill_detail_form %}
+                    <div class="col-sm-6 mb-2">
+                        {{ field.label_tag|safe }}
+                        {% if get_bill_detail_form.is_bound %}
+                            {% if field.errors %}
+
+                                {% if field.field.widget.input_type == "checkbox" %}
+                                    {% render_field field title=field.name|title  %}
+                                {% else %}
+                                    {% render_field field title=field.name|title class="form-control is-invalid" %}
+                                {% endif %}
+                                {% for error in field.errors %}
+                                <div class="invalid-feedback alert alert-danger">
+                                    {{ error }}
+                                </div>
+                                {% endfor %}
+
+                            {% else %}
+                                {% if field.field.widget.input_type == "checkbox" %}
+                                    {% render_field field title=field.name|title  %}
+                                {% else %}
+                                    {% render_field field title=field.name|title  class="form-control is-valid" %}
+                                {% endif %}
+                            {% endif %}
+                        {% else %}
+                            {% if get_bill_detail_form and field.field.widget.input_type == "file" %}
+                                <div class="form-control">
+                                    {{field}}
+                                </div>
+                                {%if extension != 'pdf' %}
+                                    <div class="img-wrap" data-id="{{ get_bill_detail_form.instance.inquiry.id }}">
+                                        <img class="imageThumb preview-img" src="/media/{{ get_bill_detail_form.instance.upload_bill.url|slice:"6:"}}" title="">
+                                        <span class="main_img_rm">X</span>
+                                    </div>
+                                {%else%}
+                                    <div class="img-wrap" data-id="{{ get_bill_detail_form.instance.inquiry.id }}">
+                                        <a href="/download?path={{get_bill_detail_form.instance.upload_bill.url|slice:"6:"}}" target="_blank"><i class="fa fa-file-pdf-o" aria-hidden="true" style="font-size:45px;" title={{get_bill_detail_form.instance.upload_bill.url|slice:"6:"}}></i></a>
+                                        <span class="main_img_rm">X</span>
+                                    </div>
+                                {%endif%}
+                            {% elif field.field.widget.input_type == "checkbox" %}
+                                {% render_field field title=field.name|title  %}
+                            {% else %}
+                                {% render_field field title=field.name|title class="form-control" %}
+                            {% endif %}
+                        {% endif %}
+
+                        {% if field.help_text %}
+                        <small class="form-text text-muted">
+                            {{ field.help_text }}
+                        </small>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                    {% for field in book_sale_detailsl_form %}
+                        <div class="col-sm-6 mb-2">
+                            {{ field.label_tag|safe }}
+                            {% if get_bill_detail_form.is_bound %}
+                                {% if field.errors %}
+
+                                    {% if field.field.widget.input_type == "checkbox" %}
+                                        {% render_field field title=field.name|title  %}
+                                    {% else %}
+                                        {% render_field field title=field.name|title class="form-control is-invalid" %}
+                                    {% endif %}
+                                    {% for error in field.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ error }}
+                                    </div>
+                                    {% endfor %}
+
+                                {% else %}
+                                    {% if field.field.widget.input_type == "checkbox" %}
+                                        {% render_field field title=field.name|title  %}
+                                    {% else %}
+                                        {% render_field field title=field.name|title  class="form-control is-valid" %}
+                                    {% endif %}
+                                {% endif %}
+                            {% else %}
+                                {% if field.field.widget.input_type == "checkbox" %}
+                                    {% render_field field title=field.name|title  %}
+                                {% else %}
+                                    {% render_field field title=field.name|title class="form-control" %}
+                                {% endif %}
+                            {% endif %}
+
+                            {% if field.help_text %}
+                            <small class="form-text text-muted">
+                                {{ field.help_text }}
+                            </small>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+            </div>
+            <input type="hidden" id="inquiry_id" value="{{get_bill_detail_form.instance.inquiry.id}}">
+            <a class="btn btn-secondary" href="{% url 'inquiry_lists' %}">Back</a>
+            {%if not is_product_financed %}
+                <button type="submit" class="btn btn-primary" id="edit-bill">Save</button>
+            {%endif%}
+        </form>
+    </div>
+</div>
+<div id="myModal" class="preview-modal">
+    <span class="close">&times;</span>
+    <img class="preview-modal-content" id="img01">
+    <div id="caption"></div>
+</div>
+{% endblock %}
+{% block customJsBlock %}
+    <script src='{% static "veloce-store/js/product-page.js" %}'></script>
+    <script>
+    $('#id_inquired_by').attr('readonly', 'readonly');
+        var modal = document.getElementById("myModal");
+        $(document).ready(function() {
+            $(document).on('click', '.preview-img', function(){
+                var img = $(this);
+                var modalImg = document.getElementById("img01");
+                var captionText = document.getElementById("caption");
+                modal.style.display = "block";
+                modalImg.src = this.src;
+                captionText.innerHTML = this.alt;
+            });
+        })
+
+
+
+        var span = document.getElementsByClassName("close")[0];
+        span.onclick = function() {
+        modal.style.display = "none";
+        }
+
+        $(document).ready(function(){
+            $(document).on('click', '.img-wrap', function(){
+                $(this).remove();
+            })
+        })
+
+        function deleteImg(){
+            var cur_obj = $(this);
+            var col_id = cur_obj.parent().attr('data-id');
+            $.ajax({
+                url: '/delete-image-by-id/',
+                data: {
+                    id:col_id,
+                    delete_from_model:'bill'
+                },
+                success: function (data) {
+                    if(data.status){
+                        cur_obj.parent().remove();
+                    }
+                },
+                error: function (e) {
+                    console.log(e);
+                }
+
+            });
+        };
+        $(document).ready(function(){
+          if($('.is-financed').length > 0){
+            $("#edit-bill-upload :input").prop("disabled", true);
+          }
+        });
+
+    </script>
+{% endblock %}

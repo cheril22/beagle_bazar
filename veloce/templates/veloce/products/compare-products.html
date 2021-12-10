@@ -1,0 +1,480 @@
+{% extends 'veloce/layout/index.html' %}
+{% load static %}
+
+
+{% block search%}
+<div class="search search-box">
+    <form id="search" method="POST" action="{% url 'search' %}">
+        {% csrf_token %}
+        <img src='{% static "veloce-store/icons/basic_magnifier.svg" %}' width="20" alt="heart">
+        <input type="text" placeholder="Search" style="width: 93%;" id="txtSearch" name="txtSearch">
+        <button class="btn btn-primary" style="border-radius: 20px;"><i class="fa fa-search" aria-hidden="true"></i></button>
+    </form>
+</div>
+{%endblock%}
+{% block customCssBlock %}
+<link rel="stylesheet" href='{% static "veloce-store/css/home-page.css" %}' xmlns="http://www.w3.org/1999/html"
+      xmlns="http://www.w3.org/1999/html">
+<link rel="stylesheet" href='{% static "veloce-store/css/compare.css" %}'>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css">
+<style>
+    .compare-img {
+        height: 150px;
+        width: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row-fluid">
+    <div class="col-12" style="padding: 0">
+        <h2>Compare Products</h2>
+    </div>
+    <div class="alert alert-danger" role="alert" id="error-msg" style="display: none !important">
+        Same products cannot be compared!
+    </div>
+</div>
+<div class="row">
+    <div class="container pb-3 mb-2">
+        <div class="comparison-table">
+            <table class="table table-bordered">
+                <thead class="bg-secondary">
+                <tr>
+                    <td>
+                        <div class="card-item card1" style="display: none;">
+                            <div class="form-group" id="cat_div">
+                                <select class="form-control selectpicker" name="category" id="comp_category" data-live-search="true" required>
+                                    <option disabled="disabled" value="" selected="selected">Select Category</option>
+                                    {%if all_category%}
+                                        {% for cat in all_category %}
+                                            <optgroup label="{{ cat.name }}">
+                                                {%for sub in sub_category%}
+                                                    {%if sub.category == cat%}
+                                                        <option value="{{sub.id}}">{{sub}}</option>
+                                                    {%endif%}
+                                                {% endfor %}
+                                            </optgroup>
+                                        {% endfor %}
+                                    {%endif%}
+                                </select>
+                            </div>
+                            <div class="form-group" id="product_category" style="display: none;">
+                                <select class="form-control show" name="sub_category" id="product_sub_cat" required>
+                                    <option disabled='disabled' value='' selected='selected'>Select Product</option>
+                                </select>
+                            </div>
+                            <span class="remove-item div1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>
+                        </div>
+                        <div class="comparison-item" style="min-height: 290px" id="addproduct">
+                            <span class="remove-item img1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>
+                            <a href="javaScript:void(0);" class="select-product">
+                                <i class="fa fa-product-hunt" aria-hidden="true" ></i>
+                                <p>select product</p>
+                            </a>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="card-item card2" style="display: none;">
+                            <div class="form-group" id="cat_div1">
+                                <select class="form-control selectpicker" name="category" id="comp_category1" data-live-search="true" required>
+                                    <option disabled="disabled" value="" selected="selected">Select Category</option>
+                                    {%if all_category%}
+                                        {% for cat in all_category %}
+                                            <optgroup label="{{ cat.name }}">
+                                                {%for sub in sub_category%}
+                                                    {%if sub.category == cat%}
+                                                        <option value="{{sub.id}}">{{sub}}</option>
+                                                    {%endif%}
+                                                {% endfor %}
+                                            </optgroup>
+                                        {% endfor %}
+                                    {%endif%}
+                                </select>
+                            </div>
+                            <div class="form-group" id="product_category1" style="display: none;">
+                                <select class="form-control show" name="sub_category" id="product_sub_cat1" required>
+                                    <option disabled='disabled' value='' selected='selected'>Select Product</option>
+                                </select>
+                            </div>
+                            <span class="remove-item div2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>
+                        </div>
+                        <div class="comparison-item" style="min-height: 290px" id="addproduct1">
+                            <span class="remove-item img2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>
+                            <a href="javaScript:void(0);" class="select-product1">
+                                <i class="fa fa-product-hunt" aria-hidden="true"></i>
+                                <p>select product</p>
+                            </a>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="card-item card3" style="display: none;">
+                            <div class="form-group" id="cat_div2">
+                                <select class="form-control selectpicker" name="category" id="comp_category2" data-live-search="true" required>
+                                    <option disabled="disabled" value="" selected="selected">Select Category</option>
+                                    {%if all_category%}
+                                        {% for cat in all_category %}
+                                            <optgroup label="{{ cat.name }}">
+                                                {%for sub in sub_category%}
+                                                    {%if sub.category == cat%}
+                                                        <option value="{{sub.id}}">{{sub}}</option>
+                                                    {%endif%}
+                                                {% endfor %}
+                                            </optgroup>
+                                        {% endfor %}
+                                    {%endif%}
+                                </select>
+                            </div>
+                            <div class="form-group" id="product_category2" style="display: none;">
+                                <select class="form-control show" name="sub_category" id="product_sub_cat2" required>
+                                    <option disabled='disabled' value='' selected='selected'>Select Product</option>
+                                </select>
+                            </div>
+                            <span class="remove-item div3"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>
+                        </div>
+                        <div class="comparison-item" style="min-height: 290px" id="addproduct2">
+                            <span class="remove-item img3"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>
+                            <a href="javaScript:void(0);" class="select-product2">
+                                <i class="fa fa-product-hunt" aria-hidden="true"></i>
+                                <p>select product</p>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                </thead>
+            </table>
+            <div class="compare-btn">
+                <a class="btn btn-secondary" href="">Reset</a>
+                <a class="btn btn-primary" id="compare_btn" href="/compare_products_details">Compare</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block customJsBlock %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/bootstrap-select.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $(document).on("change","#comp_category",function() {
+            var sub_cat_id = $(this).val();
+            $.ajax({
+                url: '/ajax_calls/get-sub-categories-products/',
+                 data: {
+                    'sub_cat_id': sub_cat_id
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.status)
+                    {
+                        $('#product_category').css('display', 'block');
+                        $('#cat_div').css('display', 'none');
+                        if($('#product_category').find('option').length <= 0){
+                            var opt = $("<option disabled='disabled' value='' selected='selected'>Select Product</option>");
+                            $("#product_sub_cat").append(opt);
+                        }
+                        for (var i in data.sub_category_products) {
+                            product = data.sub_category_products[i];
+                            var opt1 = $("<option></option>");
+                            opt1.text(product.name);
+                            opt1.val(product.id);
+                            $("#product_sub_cat").append(opt1);
+                            }
+                    }
+                }
+            });
+        });
+        $(document).on("change","#comp_category1",function() {
+            var sub_cat_id = $(this).val();
+            $.ajax({
+                url: '/ajax_calls/get-sub-categories-products/',
+                 data: {
+                    'sub_cat_id': sub_cat_id
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.status)
+                    {
+                        $('#product_category1').css('display', 'block');
+                        $('#cat_div1').css('display', 'none');
+                        if($('#product_category1').find('option').length <= 0){
+                            var opt = $("<option disabled='disabled' value='' selected='selected'>Select Product</option>");
+                            $("#product_sub_cat1").append(opt);
+                        }
+                        for (var i in data.sub_category_products) {
+                            product = data.sub_category_products[i];
+                            var opt1 = $("<option></option>");
+                            opt1.text(product.name);
+                            opt1.val(product.id);
+                            $("#product_sub_cat1").append(opt1);
+                            }
+                    }
+                }
+            });
+        });
+        $(document).on("change","#comp_category2",function() {
+            var sub_cat_id = $(this).val();
+            $.ajax({
+                url: '/ajax_calls/get-sub-categories-products/',
+                 data: {
+                    'sub_cat_id': sub_cat_id
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.status)
+                    {
+                        $('#product_category2').css('display', 'block');
+                        $('#cat_div2').css('display', 'none');
+                        if($('#product_category2').find('option').length <= 0){
+                            var opt = $("<option disabled='disabled' value='' selected='selected'>Select Product</option>");
+                            $("#product_sub_cat2").append(opt);
+                        }
+                        for (var i in data.sub_category_products) {
+                            product = data.sub_category_products[i];
+                            var opt1 = $("<option></option>");
+                            opt1.text(product.name);
+                            opt1.val(product.id);
+                            $("#product_sub_cat2").append(opt1);
+                            }
+                    }
+                }
+            });
+        });
+        function checkParam(url, name) {
+            var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(url);
+            return (results !== null) ? results[1] || 0 : false;
+        }
+        $(document).on("change","#product_sub_cat",function() {
+            var id = $(this).val();
+            $.ajax({
+                url: '/ajax_calls/get-products-by-ids/',
+                 data: {
+                    'id': id
+                },
+                dataType: 'json',
+                success: function (data) {
+                    $('.card1').css('display', 'none');
+                    $('#addproduct').css('display', 'block');
+                    $('#product_category').css('display', 'block');
+                    if($('.compare-img1').length <= 0){
+                        $('#addproduct').append('<img style="height: 200px !important" src="'+data.products+'" class="compare-img1" id="'+ data.id +'" /><p style="padding-top: 30px; margin-bottom: 0px;">'+ data.name +'</p>');
+                        $('.select-product').hide();
+                        $('#addproduct1').prop('disabled', false);
+                        $('#btn-secondary').prop('disabled', true);
+                        var _href = $('#compare_btn').attr("href");
+                        var p1 = checkParam(_href, 'p1');
+                        if(p1 != false){
+                            var url1 = _href.split('?');
+                            var params = url1[1].split('&');
+                            params[0] = 'p1='+ data.id +''
+                            params_str = params.toString();
+                            params = params_str.split(',').join('&');
+                            url = _href.slice(0, _href.lastIndexOf('p1='));
+                            $('#compare_btn').attr("href", url + params +'');
+                        }else{
+                            $('#compare_btn').attr("href", _href + '?p1='+ data.id +'');
+                        }
+                        }
+                    }
+                })
+            });
+        $(document).on("change","#product_sub_cat1",function() {
+            var id = $(this).val();
+            $.ajax({
+                url: '/ajax_calls/get-products-by-ids/',
+                 data: {
+                    'id': id
+                },
+                dataType: 'json',
+                success: function (data) {
+                    $('.card2').css('display', 'none');
+                    $('#addproduct1').css('display', 'block');
+                    $('#card1').css('display', 'none');
+                    if($('.compare-img2').length <= 0){
+                        $('#addproduct1').append('<img style="height: 200px !important" src="'+data.products+'" class="compare-img2" id="'+ data.id +'" /><p style="padding-top: 30px; margin-bottom: 0px;">'+ data.name +'</p>');
+                        $('.select-product1').hide();
+                        $('#addproduct2').prop('disabled', false);
+                        var _href = $('#compare_btn').attr("href");
+                        var p2 = checkParam(_href, 'p2');
+                        if(p2 != false){
+                            var url1 = _href.split('?');
+                            var params = url1[1].split('&');
+                            params[1] = 'p2='+ data.id +''
+                            params_str = params.toString();
+                            params = params_str.split(',').join('&');
+                            url = _href.slice(0, _href.lastIndexOf('p1='));
+                            $('#compare_btn').attr("href", url + params +'');
+                        }else{
+                            $('#compare_btn').attr("href", _href + '&p2='+ data.id +'');
+                        }
+                    }
+                }
+            });
+        });
+        $(document).on("change","#product_sub_cat2",function() {
+            var id = $(this).val();
+            $.ajax({
+                url: '/ajax_calls/get-products-by-ids/',
+                 data: {
+                    'id': id
+                },
+                dataType: 'json',
+                success: function (data) {
+                    $('.card3').css('display', 'none');
+                    $('#addproduct2').css('display', 'block');
+                    if($('.compare-img3').length <= 0){
+                        $('#addproduct2').append('<img style="height: 200px !important" src="'+data.products+'" class="compare-img3" id="'+ data.id +'" /><p style="padding-top: 30px; margin-bottom: 0px;">'+ data.name +'</p>');
+                        $('.select-product2').hide();
+                        var _href = $('#compare_btn').attr("href");
+                        var p3 = checkParam(_href, 'p3');
+                        if(p3 != false){
+                            var url1 = _href.split('?');
+                            var params = url1[1].split('&');
+                            params[2] = 'p3='+ data.id +''
+                            params_str = params.toString();
+                            params = params_str.split(',').join('&');
+                            url = _href.slice(0, _href.lastIndexOf('p1='));
+                            $('#compare_btn').attr("href", url + params +'');
+                        }else{
+                            $('#compare_btn').attr("href", _href + '&p3='+ data.id +'');
+                        }
+                    }
+                }
+            });
+        });
+        $(document).on('click', '#addproduct', function() {
+            if($('.compare-img1').length <= 0) {
+                $('.card1').css('display', 'block');
+                $('#addproduct').css('display', 'none');
+            } else{
+                $('.card1').css('display', 'none');
+                $('#addproduct').css('display', 'block');
+            }
+        })
+        $(document).on('click', '#addproduct1', function() {
+            if($('.compare-img2').length <= 0) {
+                $('.card2').css('display', 'block');
+                $('#addproduct1').css('display', 'none');
+            } else{
+                $('.card2').css('display', 'none');
+                $('#addproduct1').css('display', 'block');
+            }
+        })
+        $(document).on('click', '#addproduct2', function() {
+            if($('.compare-img3').length <= 0) {
+                $('.card3').css('display', 'block');
+                $('#addproduct2').css('display', 'none');
+            } else{
+                $('.card3').css('display', 'none');
+                $('#addproduct2').css('display', 'block');
+            }
+        })
+        $('#addproduct1').prop('disabled', true);
+        $('#addproduct2').prop('disabled', true);
+        function getURLParameter(url, name) {
+            return (RegExp(name + '=' + '(.+?)(&|$)').exec(url)||[,null])[1];
+        }
+        function checkParam(url, name) {
+            var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(url);
+            return (results !== null) ? results[1] || 0 : false;
+        }
+        $('#compare_bxtn').click(function(event) {
+            var url = ($("#compare_btn").attr('href'));
+            var p1 = checkParam(url, 'p1');
+            var p2 = checkParam(url, 'p2');
+            var p3 = checkParam(url, 'p3');
+            if(p1 != false && p2 !=false){
+                if(p1 == p2 || p1 == p3 || p2 == p3){
+                    $('#error-msg').css('display', 'block');
+                    event.preventDefault();
+                }
+                else{
+                    $('#error-msg').css('display', 'none');
+                }
+            }
+            else{
+                event.preventDefault();
+            }
+        });
+        $('.remove-item').on('click', function(){
+            if ($(this).hasClass('img1') || $(this).hasClass('div1')){
+            if ($(this).siblings('.compare-img1').length > 0 ){
+                $('.compare-img1').remove();
+                $(this).siblings('p').remove();
+                $('#addproduct1').css('disabled', true);
+                $('#comp_category').val('');
+                $('#product_sub_cat').val('');
+            } else if($(this).siblings('.compare-img1').length <= 0 ) {
+                $('#comp_category').val('');
+                $('#product_sub_cat').val('');
+                if($(this).siblings('#product_category').css('display') == 'block')
+                {
+                    $('#cat_div').css('display', 'block')
+                    $('#product_category').css('display', 'none')
+                    $('#product_sub_cat').find('option').remove();
+                }else if($('#cat_div').css('display') == 'block')
+                {
+                    $('.card1').css('display', 'none')
+                    $('#addproduct').css('display', 'block')
+                    $(".select-product").css('display', 'block')
+                }
+                else {
+                    $('#cat_div').css('display', 'none')
+                    $('#product_category').css('display', 'block')
+                }
+                }
+            }
+            else if($(this).hasClass('img2') || $(this).hasClass('div2')){
+                if ($(this).siblings('.compare-img2').length > 0 ){
+                    $('.compare-img2').remove();
+                    $('#addproduct1').find('p').remove();
+                    $('#addproduct1').css('disabled', true);
+                    $('#comp_category1').val('');
+                    $('#product_sub_cat1').val('');
+                } else if ($(this).siblings('.compare-img2').length <= 0) {
+                    $('#comp_category1').val('');
+                    $('#product_sub_cat1').val('');
+                    if($(this).siblings('#product_category1').css('display') == 'block'){
+                        $('#cat_div1').css('display', 'block');
+                        $('#product_category1').css('display', 'none');
+                        $('#product_sub_cat1').find('option').remove();
+                    }else if($(this).siblings('#cat_div1').css('display') == 'block'){
+                        $('.card2').css('display', 'none');
+                        $('#addproduct1').css('display', 'block');
+                        $(".select-product1").css('display', 'block');
+                    }
+                    else {
+                        $('#cat_div1').css('display', 'none')
+                        $('#product_category1').css('display', 'block')
+                    }
+                }
+            }
+            else if($(this).hasClass('img3') || $(this).hasClass('div3')){
+                if ($(this).siblings('.compare-img3').length > 0 ){
+                    $('.compare-img3').remove();
+                    $(this).siblings('p').remove();
+                    $('#addproduct2').css('disabled', true);
+                    $('#comp_category2').val('');
+                    $('#product_sub_cat2').val('');
+                } else if ($(this).siblings('.compare-img3').length <= 0){
+                    $('#comp_category2').val('');
+                    $('#product_sub_cat2').val('');
+                    if($(this).siblings('#product_category2').css('display') == 'block')
+                        {
+                            $('#cat_div2').css('display', 'block')
+                            $('#product_category2').css('display', 'none')
+                            $('#product_sub_cat2').find('option').remove();
+                        }else if($(this).siblings('#cat_div2').css('display') == 'block')
+                        {
+                            $('.card3').css('display', 'none')
+                            $('#addproduct2').css('display', 'block')
+                            $(".select-product2").css('display', 'block')
+                        }
+                        else {
+                            $('#cat_div2').css('display', 'none')
+                            $('#product_category2').css('display', 'block')
+                        }
+                }
+            }
+        });
+});
+</script>
+{% endblock %}

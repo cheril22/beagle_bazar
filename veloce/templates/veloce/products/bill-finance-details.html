@@ -1,0 +1,283 @@
+{% extends 'veloce/layout/index.html' %}
+{% load auth_tag %}
+{% load static %}
+
+{% block title %}Reward Listing{% endblock %}
+
+{% block customCssBlock %}
+<link href='{% static "veloce-store/vendor/datatables/dataTables.bootstrap4.min.css" %}' rel="stylesheet">
+<link rel="stylesheet" href='{% static "veloce-store/css/home-page.css" %}'>
+<style>
+  .loan {
+        padding: 0px;
+    }
+
+    .loan .details {
+        padding: 10px;
+
+        display: inline-block;
+    }
+
+    .loan .details td:first-child {
+        width: 260px;
+        padding: 5px 0px;
+    }
+
+    .loan h3 {
+        font-size: 15px;
+        font-weight: bold;
+    }
+
+    .loan h3 em {
+        font-weight: normal;
+        font-size: 10px;
+        text-transform: uppercase;
+    }
+
+    .loan form input {
+        width: 30px;
+        height: 30px;
+        padding: 5px;
+        background: rgba(240, 240, 240, 0.8);
+        cursor: pointer;
+    }
+
+    .loan .row {
+        width: 100%;
+        margin: 0
+    }
+
+    .loan .col {
+        text-align: center;
+        border: solid;
+        border-color: rgba(0, 0, 0, 0.1);
+        font-size: 20px;
+        padding: 15px;
+    }
+
+    .loan .col b {
+        margin-bottom: 5px;
+        display: block;
+        text-transform: uppercase;
+        font-size: 12px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Heading -->
+<div class="accordion" id="accordionExample">
+  <div class="card">
+    <div class="card-header" id="headingOne">
+      <h2 class="mb-0">
+        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          Uploaded Bill Details
+        </button>
+        <tr>
+            <td><b>Inquiry ID:</b></td>
+            <td>{{my_product_inquiries.id}}</td>
+        </tr>
+        <a href="http://192.168.0.20:7002/{{get_bill_detail.upload_bill|get_upload_bill_url}}" style="padding-left: 780px" download aria-hidden="true">
+            <span class="fa fa-download"></span>
+        </a>
+      </h2>
+    </div>
+    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+      <div class="card-body">
+          <div class="loan">
+            <table class="details" style="width: 60%; float: left; margin-bottom: 25px;">
+                <tr>
+                    <td><b>Bill no:</b></td>
+                    <td>{{get_bill_detail.bill_no}}</td>
+                </tr>
+                <tr>
+                    <td><b>Bill date:</b></td>
+                    <td>{{get_bill_detail.bill_date}}</td>
+                </tr>
+<!--                <tr>-->
+<!--                    <td><b>Total Bill Amount:</b></td>-->
+<!--                    <td>{{get_bill_detail.bill_amount}}</td>-->
+<!--                </tr>-->
+                <tr>
+                    <td><b>Billing party name:</b></td>
+                    <td>{{get_bill_detail.billing_party_name}}</td>
+                </tr>
+                <tr>
+                    <td><b>Billing party gst no:</b></td>
+                    <td>{{get_bill_detail.billing_party_gst_no|default:'-'}}</td>
+                </tr>
+                <tr>
+                    <td><b>Dealer gst no:</b></td>
+                    <td>{{get_bill_detail.dealer_gst_no|default:'-'}}</td>
+                </tr>
+                <tr>
+                    <td><b>Product:</b></td>
+                    <td>{{book_sale_details.inq_product_name}}</td>
+                </tr>
+            </table>
+            <table class="details" style="width: 38%; float: left; margin-bottom: 25px;">
+<!--                <tr>-->
+<!--                    <td><b>Product:</b></td>-->
+<!--                    <td>{{book_sale_details.inq_product_name}}</td>-->
+<!--                </tr>-->
+                <tr>
+                    <td><b>Qty:</b></td>
+                    <td>{{book_sale_details.qty}}</td>
+                </tr>
+                <tr>
+                    <td><b>Price:</b></td>
+                    <td>{{book_sale_details.inq_product_price}}</td>
+                </tr>
+                <tr>
+                    <td><b>Gross Amt:</b></td>
+                    <td>{{book_sale_details.inq_product_gross_amt}}</td>
+                </tr>
+                <tr>
+                    <td><b>Disc Amt:</b></td>
+                    <td>{{book_sale_details.inq_product_disc_amt}}</td>
+                </tr>
+                <tr>
+                    <td><b>Taxes:</b></td>
+                    <td>{{book_sale_details.inq_product_tax}}</td>
+                </tr>
+                <tr>
+                    <td><b>Total Bill Amount:</b></td>
+                    <td>{{get_bill_detail.bill_amount}}</td>
+                </tr>
+            </table>
+            <a href="javascript:void(0);" class="btn btn-primary finance-btn" data-toggle="modal" data-target="#FinanceConfirmationModal" data-url="{{ bill_discount_url }}/{{inquiry.id}}">Apply For Loan</a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% if my_product_inquiries.is_product_financed %}
+  <div class="card">
+    <div class="card-header" id="headingTwo">
+      <h2 class="mb-0">
+        <button class="btn btn-primary collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+          Finance Scheme Details
+        </button>
+      </h2>
+    </div>
+    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+      <div class="card-body">
+          <div class="loan">
+            <table class="details" style="width: 60%; float: left; margin-bottom: 25px;">
+                <tr>
+                    <td><b>Product:</b></td>
+                    <td>{{book_sale_details.inq_product_name}}</td>
+                </tr>
+               <tr>
+                    <td><b>Bill Amount:</b></td>
+<!--                    <td>{{ key }}</td>-->
+                    <td>{{finance_scheme.bill_amount}}</td>
+                </tr>
+                <tr>
+                    <td><b>Down payment:</b></td>
+                    <td>{{finance_scheme.down_payment}}</td>
+                </tr>
+                <tr>
+                    <td><b>Loan Status:</b></td>
+                    <td>{{get_bill_detail.billing_party_name}}</td>
+                </tr>
+            </table>
+            <table class="details" style="width: 38%; float: left; margin-bottom: 25px;">
+                <tr>
+                    <td><b>Loan Amount:</b></td>
+                    <td>{{finance_scheme.loan_amount}}</td>
+                </tr>
+                <tr>
+                    <td><b>Loan Tenure:</b></td>
+                    <td>{{get_bill_detail.dealers_given_finance_scheme.tenure}}</td>
+                </tr>
+                <tr>
+                    <td><b>ROI:</b></td>
+                    <td>{{get_bill_detail.dealers_given_finance_scheme.rate_of_interest}}%</td>
+                </tr>
+                <tr>
+                    <td><b>EMI:</b></td>
+                    <td>{{finance_scheme.emi}}</td>
+                </tr>
+            </table>
+          </div>
+      </div>
+    </div>
+  </div>
+{%endif%}
+</div>
+<div class="card-body">
+    <a class="btn btn-secondary" href="{% url 'inquiry_lists' %}">Back</a>
+    
+</div>
+
+<div class="modal fade" id="FinanceConfirmationModal" tabindex="-1" role="dialog"
+     aria-labelledby="incompleteUserLevelModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="logo-block"  style="padding: 0px; margin: 0px; max-width: 30%;">
+                <a href="{% url 'index' %}">
+                    <img src="/static/beaglelogo.png" alt="" class="imgs-fluid logo" />
+                </a>
+           </div>
+            <!-- <div class="modal-header pb-4"> --><hr  style="margin-top: 0px; margin-bottom: 0px;"> 
+                <button type="button" class="close p-0" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            <!-- </div> -->
+            <div class="modal-body">
+                <p class="font-weight-bold">Are you sure, you wish to opt for bill financing for this bill ?</p>
+                <hr>
+                <form method="post" id="loan_application_form" action="http://192.168.0.20:7004/accounts/login/?next=/o/authorize/%3Fclient_id%3DhG5XBhRRLwz4SVxQ9KlG5OBWF390XvWyjkzA1v4k%26redirect_uri%3Dhttp%3A//192.168.0.20%3A7003/complete/vauth/%26response_type%3Dcode" novalidate="novalidate">
+                    {% csrf_token %}
+                    <div class="form-group row" style="margin-bottom: 0px;">
+                        <div class="form-group col-sm-12">
+                            <label for="id_email"><label class="required" for="id_email">Email:</label></label>
+                            <div class="d-block">
+                                <input type="text" name="email" value="{{request.user.email}}" class="form-control" title="id_email" readonly required id="id_email">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label for="id_password"><label class="required" for="id_password">Password:</label></label>
+                            <!-- <div class="d-block">
+                                <input type="password" name="password" class="form-control" title="password" required id="id_password">
+                            </div> -->
+                            <div class="d-block">
+                                <input type="password" name="password" class="form-control" title="password" required id="id_password"><br>
+                                <input type="checkbox" onclick="myFunction()"> Show Password
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer text-center">
+                        <button class="btn btn-info" style="background-color: #009957;border-color: white;">Verify</button>
+                        <button type="button" class="btn btn-outline-info waves-effect " data-dismiss="modal">Close</button>
+                      </div>
+                    
+                    
+                </form>
+            </div>
+            <!-- <div class="modal-footer">
+                <button type="button" class="btn btn-outline-info waves-effect ml-auto" data-dismiss="modal">Close</button>
+            </div> -->
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block customJsBlock %}
+<script src='{% static "veloce-store/vendor/datatables/jquery.dataTables.min.js" %}'></script>
+<script src='{% static "veloce-store/vendor/datatables/dataTables.bootstrap4.min.js" %}'></script>
+<script src='{% static "veloce-store/vendor/datatables/datatables-demo.js" %}'></script>
+<script>
+<!--    $('.collapsed').on('click', function(){-->
+<!--            $.ajax({-->
+<!--                url: 'https://velocefintech.com/get-finance-scheme-details/',-->
+<!--                type: 'POST',-->
+<!--                data: {'bill_no': '{{get_bill_detail.bill_no}}', 'borrower_email': '{{my_product_inquiries.inquiry_by}}'},-->
+<!--                dataType: 'json',-->
+<!--                success: function (data) {-->
+<!--                console.log(data)-->
+<!--                }-->
+<!--            })-->
+<!--    })-->
+</script>
+{% endblock %}

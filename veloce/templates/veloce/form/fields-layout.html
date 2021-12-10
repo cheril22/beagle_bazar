@@ -1,0 +1,20 @@
+{% load widget_tweaks %}
+{% if form.is_bound %}
+    {% if field.errors %}
+        {% render_field field class="form-control is-invalid" title=field.name %}
+        {% for error in field.errors %}
+            <div class="invalid-feedback">
+                {{ error }}
+            </div>
+        {% endfor %}
+    {% else %}
+        {% render_field field class="form-control is-valid" title=field.name %}
+    {% endif %}
+{% else %}
+    {% render_field field class="form-control" title=field.name %}
+{% endif %}
+{% if field.help_text %}
+    <small class="form-text text-muted">
+        {{ field.help_text }}
+    </small>
+{% endif %}

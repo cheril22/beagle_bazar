@@ -1,0 +1,41 @@
+{% extends 'veloce/layout/index.html' %}
+{% load static %}
+
+{% block customCssBlock %}
+<link rel="stylesheet" href='{% static "veloce-store/css/home-page.css" %}'>
+{% endblock %}
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'all_categories' %}">Categories</a></li>
+        <li class="breadcrumb-item active"><a href="javascript:void(0);">{{category.name|title}}</a></li>
+      </ol>
+    </nav>
+{% endblock breadcrumb %}
+{% block content %}
+<div class="row-fluid">
+    <div class="col-12" style="padding: 0">
+        <div class="row-title">
+            <h2>{{category.name|title}}</h2>
+            <span class="view-more">View More</span>
+        </div>
+
+    </div>
+</div>
+<div class="row">
+    {% if category %}
+        {% for subCat in category.sub_category.all %}
+            <div class="col-md-3">
+                <div class="tile background" id="{{subCat.name}}">
+                    <a href="{% url 'products' category.slug subCat.slug %}">
+                        <div class="tile foreground img-thumbnail" style="background-repeat: no-repeat; background-size: contain; background-image: url({{ subCat.sub_category_img.name|slice:"6:" }})">
+                            <p style="font-size: 17px; width: 100%; margin:0px; background: #fff;">{{subCat.name}}</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}

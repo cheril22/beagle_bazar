@@ -1,0 +1,29 @@
+<div class="modal fade" id="inquiryModal" tabindex="-1" role="dialog" aria-labelledby="inquiryModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="inquiryModalLabel">Request a Quote</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12">
+                    <img src="" class="img-thumbnail product-img" style="height: 56px;">
+                    <span class="product-name h4 ml-3"></span>
+                </div>
+                <hr>
+                <form method="post" id="submit-inquiry" action="{% url 'save_inquiry' %}" novalidate>
+                    <h6>Send the inquiry</h6>
+                    <hr>
+                    {% csrf_token %}
+                    <p class="mb-3"><b>Your name and email will be shared with the vendor.</b></p>
+                    <div class="d-block" id="inq-frm"></div>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Send Your Inquiry</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

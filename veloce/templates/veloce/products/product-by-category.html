@@ -1,0 +1,45 @@
+{% extends 'veloce/layout/index.html' %}
+{% load auth_tag %}
+{% load static %}
+
+{% block customCssBlock %}
+<link rel="stylesheet" href='{% static "veloce-store/css/home-page.css" %}'>
+{% endblock %}
+
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'all_sub_categories' sub_cat_products.category.slug %}">{{ sub_cat_products.category.name }}</a></li>
+        <li class="breadcrumb-item active"><a href="javascript:void(0);">{{ sub_cat_products.name }}</a></li>
+      </ol>
+    </nav>
+{% endblock breadcrumb %}
+
+{% block content %}
+<div class="row-fluid">
+    <div class="col-12" style="padding: 0">
+        <div class="row-title">
+            <h2>{{ sub_cat_products.name }}</h2>
+            <span class="view-more">View More {{ static }}</span>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    {% if sub_cat_products.product_category.all %}
+        {% for product in sub_cat_products.product_category.all %}
+            {% include 'veloce/products/products-list-layout.html' %}
+        {% endfor %}
+        {% include 'veloce/modal/rating-modal.html' %}
+        {% include 'veloce/modal/inquiry-modal.html' %}
+    {% else %}
+        <div class="card-body">
+            <label class="h5">No Data Found !</label>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+{% block customJsBlock %}
+    <script src='{% static "veloce-store/js/product-page.js" %}'></script>
+{% endblock %}

@@ -1,0 +1,1191 @@
+{% extends 'veloce/layout/index.html' %}
+{% load static %}
+
+{% block title %}Dealer List{% endblock %}
+
+{% block customCssBlock %}
+<link href='{% static "veloce-store/vendor/datatables/dataTables.bootstrap4.min.css" %}' rel="stylesheet">
+<link rel="stylesheet" href='{% static "veloce-store/css/home-page.css" %}'>
+{% endblock %}
+{% block content %}
+<div class="msg_ajax_add"></div>
+<!-- Page Heading -->
+<h1 class="h3 mb-2 text-gray-800 text-left">Dealer lists</h1>
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">All Dealer List</h6>
+        <small> Welcome to Beagle Bazar dealer list. please select the dealer from below who can sell you product. </small>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            {% csrf_token %}
+            <table class="table table-bordered" width="100%" cellspacing="0">
+                <thead>
+                <tr>
+                    <th width="5%" class="text-center">No.</th>
+                    <th width="25%" class="text-center">Dealer Name</th>
+                    <th width="25%" class="text-center">Location</th>
+                    <th width="15%" class="text-center">View Profile</th>
+                    <th width="15%" class="text-center">Approve</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if dealer_modules %}
+                    {% for dealer_lists in dealer_modules %}
+                    <tr>
+                        <td class="text-center">{{ forloop.counter}}</td>
+                        {% for dealer_list in dealer_lists %}
+                        <td>{{dealer_list.User.first_name }} {{dealer_list.User.last_name }} - {{dealer_list.User.username }}</td>
+                        <td>{{dealer_list.Address.city }}</td>
+                        <td class="text-center">
+                            <a href="javascript:void(0);" class="btn btn-primary get_jq_val" data-toggle="modal" data-target="#DealerDetails" data-id="{{dealer_list.User.id}}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                    <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+                                    <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+                                </svg>
+                            </a>
+                        </td>
+                        <!-- {{pending_dealers}} -->
+                        {% if dealer_list.User.username not in pending_dealers %}
+                            {% if dealer_list.User.username not in completed_dealers %}
+                            <td class="text-center">    
+                                <a href="javascript:void(0);" data-id="{{dealer_list.User.id}}"  data-toggle="modal"
+                                data-target="#approvedealerbycompany" class="btn btn-primary product-edit-btn a_dealer_select">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-square-fill" viewBox="0 0 16 16">
+                                    <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm10.03 4.97a.75.75 0 0 1 .011 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.75.75 0 0 1 1.08-.022z"/>
+                                </svg> 
+                                </a>
+                            </td>
+                            {% else %}
+                            <td class="text-center">    
+                                <button href="javascript:void(0);" class="btn btn-secondary" disabled="">Apply</button>
+                            </td>
+                            {% endif %}
+                        {% else %}
+                        <td class="text-center">    
+                            <button href="javascript:void(0);" class="btn btn-secondary" disabled="">Apply</button>
+                        </td>
+                        {% endif %}
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="5">No Data Found</td>
+                </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!--Approve POPUP-->
+<div class="modal fade" id="approvedealerbycompany" tabindex="-1" role="dialog" aria-labelledby="ApprovedealerModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ApprovedealerModalLabel">Are you sure?</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">Do you really want to this dealer ?</div>
+            <div class="modal-footer">
+                <a class="btn btn-success" id="get_id" href="">Confirm</a>
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Delete Modal-->
+<div class="modal fade" id="deleteProductModal" tabindex="-1" role="dialog" aria-labelledby="deleteProductModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteProductModalLabel">Are you sure?</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">Do you really want to delete this records?</div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                <a class="btn btn-danger" id="delete-record" href="">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!---------------------------------------APPROVE PRODUCT-------------------------------------->
+
+<div class="modal fade" id="approvebycompany" tabindex="-1" role="dialog" aria-labelledby="ApprovebyCompanyModalLabel"
+aria-hidden="true">
+    <div class="modal-dialog" role="document" style="max-width: 1000px;">
+        <div class="modal-content" style="padding: 10px;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ApprovebyCompanyModalLabel">REQUEST BY DEALER</h5>
+                <input type="hidden" name="" id = "get_deler_email_name">
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body" id="productListModelBody" style="max-height: 600px;overflow: auto;">
+                <table class="table table-bordered" id="dataTableProduct_List" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th width="10%" class="text-center">No.</th>
+                            <th width="15%" class="text-center">Product Image</th>
+                            <th width="25%" class="text-center">Product Name</th>
+                            <th width="15%" class="text-center">Category</th>
+                            <th width="25%" class="text-center">Approve/Reject</th>
+                            <th width="10%" class="text-center">Confirm</th>
+                        </tr>
+                    </thead>
+                    <tbody id="display_select_product_data">
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+            <!-- Status Rejected Modal-->
+            <div class="modal fade" id="statusRejectModel" tabindex="-1" role="dialog" aria-labelledby="statusRejectModel" aria-hidden="true" style="z-index: 9;">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="statusRejectModel">Write Your Valid Reason</h5>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="rejectedReason">Reason</label>
+                                <textarea class="form-control" id="rejectedReason"></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" type="button" onclick="closemodal('statusRejectModel')">Cancel</button>
+                            <button class="btn btn-success" type="button" id="rejectRequestSubmitbtn" data-dismiss="modal">Confirm</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="ConfirmProduct" tabindex="-1" role="dialog" aria-labelledby="ConfirmProductModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content" style="background-color: #efeeee;">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="ConfirmProductModalLabel">Are you sure?</h5>
+                        </div>
+                        <div class="modal-body">Do you really want to become a dealer to this Product?</div>
+                        <div class="modal-footer">
+                            <button class="btn btn-success" id="approveRequestSubmitbtn" type="submit" value="submit">Yes</button>
+                            <button type="button" class="btn btn-secondary" onclick="closemodal('ConfirmProduct')">No</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="DealerDetails" tabindex="-1" role="dialog"
+     aria-labelledby="incompleteUserLevelModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="max-width: 850px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">GENERAL INFORMATIONS</h5>
+            </div>
+            <div class="modal-body" style="max-height: 600px;overflow: auto;">
+                <div>
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th width="35%" class="text-center">Field</th>
+                            <th width="65%" class="text-center">Detail</th>
+                        </tr>
+                        </thead>
+                        <tbody id="display_data_dealer">
+                            <tr>
+                                <th width="25%" class="text-center">**</th>
+                                <td>**</td>
+                            </tr> 
+                        </tbody>
+                    </table>
+                </div>
+                <br>
+                <div>
+                    <h5 class="text-center">ADDRESS DETAILS</h5>
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th width="35%" class="text-center">Field</th>
+                            <th width="65%" class="text-center">Detail</th>
+                        </tr>
+                        </thead>
+                        <tbody id="display_data_dealer1">
+                            <tr>
+                                <th width="25%" class="text-center">**</th>
+                                <td>**</td>
+                            </tr> 
+                        </tbody>
+                    </table>
+                </div>
+                <br>
+                <div>
+                    <h5 class="text-center">COMPANY DETAILS</h5>
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th width="35%" class="text-center">Field</th>
+                            <th width="65%" class="text-center">Detail</th>
+                        </tr>
+                        </thead>
+                        <tbody id="display_data_dealer2">
+                            <tr>
+                                <th width="25%" class="text-center">**</th>
+                                <td>**</td>
+                            </tr> 
+                        </tbody>
+                    </table>
+                </div>
+                <br>
+                <div>
+                    <h5 class="text-center">ADDITIONAL COMPANY DETAILS</h5>
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th width="35%" class="text-center">Field</th>
+                            <th width="65%" class="text-center">Detail</th>
+                        </tr>
+                        </thead>
+                        <tbody id="display_data_dealer3">
+                            <tr>
+                                <th width="25%" class="text-center">**</th>
+                                <td>**</td>
+                            </tr> 
+                        </tbody>
+                    </table>
+                </div>
+                <br>
+                <div>
+                    <h5 class="text-center">BANK DETAILS</h5>
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th width="35%" class="text-center">Field</th>
+                            <th width="65%" class="text-center">Detail</th>
+                        </tr>
+                        </thead>
+                        <tbody id="display_data_dealer4">
+                            <tr>
+                                <th width="25%" class="text-center">**</th>
+                                <td>**</td>
+                            </tr> 
+                        </tbody>
+                    </table>
+                </div>
+                <br>
+                <div>
+                    <h5 class="text-center">AUTH ADDITIONAL COMPANY DETAILS</h5>
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th width="35%" class="text-center">Field</th>
+                            <th width="65%" class="text-center">Detail</th>
+                        </tr>
+                        </thead>
+                        <tbody id="display_data_dealer5">
+                            <tr>
+                                <th width="25%" class="text-center">**</th>
+                                <td>**</td>
+                            </tr> 
+                        </tbody>
+                    </table>
+                </div>
+                <br>
+                <div>
+                    <h5 class="text-center">BANK STATEMENT DETAILS</h5>
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th width="35%" class="text-center">Field</th>
+                            <th width="65%" class="text-center">Detail</th>
+                        </tr>
+                        </thead>
+                        <tbody id="display_data_dealer6">
+                            <tr>
+                                <th width="25%" class="text-center">**</th>
+                                <td>**</td>
+                            </tr> 
+                        </tbody>
+                    </table>
+                </div>
+                <br>
+                <div>
+                    <h5 class="text-center">BUSINESS FINANCIAL DETAILS</h5>
+                    <table class="table table-bordered"  width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th width="35%" class="text-center">Field</th>
+                            <th width="65%" class="text-center">Detail</th>
+                        </tr>
+                        </thead>
+                        <tbody id="display_data_dealer7">
+                            <tr>
+                                <th width="25%" class="text-center">**</th>
+                                <td>**</td>
+                            </tr> 
+                        </tbody>
+                    </table>
+                </div>
+                <br>
+                <div>
+                    <h5 class="text-center">INCOME TAX RETURN DETAILS</h5>
+                    <table class="table table-bordered"  width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th width="35%" class="text-center">Field</th>
+                            <th width="65%" class="text-center">Detail</th>
+                        </tr>
+                        </thead>
+                        <tbody id="display_data_dealer8">
+                            <tr>
+                                <th width="25%" class="text-center">**</th>
+                                <td>**</td>
+                            </tr> 
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" aria-label="Close">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--  SELECTED DEALER -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Approval Pending Dealer</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered"  width="100%" cellspacing="0">
+                <thead>
+                <tr>
+                    <th width="5%" class="text-center">No.</th>
+                    <th width="25%" class="text-center">Dealer Name</th>
+                    <th width="25%" class="text-center">Location</th>
+                    <th width="15%" class="text-center">View Profile</th>
+                    <th width="15%" class="text-center">Reject</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if selected_dealers %}
+                    {% for dealer_list in selected_dealers %}
+                        {% if dealer_list.User.username not in companyselection_request  %}
+                        <tr>
+                            <td class="text-center">{{ forloop.counter}}</td>
+                            <td>{{dealer_list.User.first_name }} {{dealer_list.User.last_name }} - {{dealer_list.User.username }}</td>
+                            <td>{{dealer_list.Address.city }}</td>
+                            <td class="text-center">
+                                <a href="javascript:void(0);" class="btn btn-primary get_jq_val" data-toggle="modal" data-target="#DealerDetails" data-id="{{dealer_list.User.id}}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                        <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+                                        <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+                                    </svg>
+                                </a>
+                            </td>
+                            <td class="text-center">    
+                                <a href="javaScript:void(0);" data-toggle="modal" data-url ="/remove-dealer-pending?user={{dealer_list.User.username}}"
+                                data-target="#deleteProductModal" class="btn btn-danger delete-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
+                                    <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>
+                                </svg>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="6" style="text-align: center;">No Data Found</td>
+                </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!--  SELECTED DEALER -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary"> REQUEST BY DEALER</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" width="100%" cellspacing="0">
+                <thead>
+                <tr>
+                    <th width="5%" class="text-center">No.</th>
+                    <th width="25%" class="text-center">Dealer Name</th>
+                    <th width="25%" class="text-center">Location</th>
+                    <th width="15%" class="text-center">View Profile</th>
+                    <th width="15%" class="text-center">Approve Pending by dealer</th>
+                    <th width="15%" class="text-center">Reject</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if selected_dealers %}
+                    {% for dealer_list in selected_dealers %}
+                        {% if dealer_list.User.username  in companyselection_request  %}
+                        <tr>
+                            <td class="text-center">{{ forloop.counter}}</td>
+                            <td>{{dealer_list.User.first_name }} {{dealer_list.User.last_name }} - {{dealer_list.User.username }}</td>
+                            <td>{{dealer_list.Address.city }}</td>
+                            <td class="text-center">
+                                <a href="javascript:void(0);" class="btn btn-primary get_jq_val" data-toggle="modal" data-target="#DealerDetails" data-id="{{dealer_list.User.id}}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                        <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+                                        <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+                                    </svg>
+                                </a>
+                            </td>
+                            <td class="text-center">    
+                                <a href="javascript:void(0);" data-id="{{dealer_list.User.username}}"  data-toggle="modal"
+                                data-target="#approve-dealerbycompany" class="btn btn-primary product-edit-btn approve_dealer">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-square-fill" viewBox="0 0 16 16">
+                                    <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm10.03 4.97a.75.75 0 0 1 .011 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.75.75 0 0 1 1.08-.022z"/>
+                                </svg> 
+                                </a>
+                            </td>
+                            <!-- <td class="text-center">
+                                <a href="#" data-id="{{dealer_list.User.username}}" class="btn btn-primary getDealerEmail" data-toggle="modal" 
+                                data-target="#approveDealerbyCompany">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-square-fill" viewBox="0 0 16 16">
+                                        <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm10.03 4.97a.75.75 0 0 1 .011 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.75.75 0 0 1 1.08-.022z"/>
+                                    </svg>    
+                                </a>
+                            </td> -->
+                            <td class="text-center">    
+                                <a href="javaScript:void(0);" data-toggle="modal" data-url ="" data-id ="{{dealer_list.User.username}}"
+                                data-target="#deleteCrossQueryModal" class="btn btn-danger removeCrossQuery">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
+                                    <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>
+                                </svg>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="6" style="text-align: center;">No Data Found</td>
+                </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal cross Query-->
+<div class="modal fade" id="deleteCrossQueryModal" tabindex="-1" role="dialog" aria-labelledby="deleteCrossQueryModalModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteCrossQueryModalModalLabel">Are you sure?</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">Do you really eant to reject the given dealer?<br><input type="text" name="" id="getCrossReason" style="border: 1px solid red;"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                <a class="btn btn-danger" id="cross-delete-record" href="">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- REQUEST BY DEALER APPROVE POPUP -->
+<div class="modal fade" id="approve-dealerbycompany" tabindex="-1" role="dialog" aria-labelledby="approve-dealerbycompanyModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="approve-dealerbycompanyModalLabel">Are you sure?</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">Do you really want to this dealer ?</div>
+            <div class="modal-footer">
+                <a class="btn btn-success" id="pendingToApproveComToDealer" href="javascript:void(0);">Confirm</a>
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pending approval list -->
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">SELECTED PRODUCT BY DEALER</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" width="100%" cellspacing="0">
+                <thead>
+                <tr>
+                    <th width="5%" class="text-center">No.</th>
+                    <th width="25%" class="text-center">Dealer Name</th>
+                    <th width="25%" class="text-center">Location</th>
+                    <th width="15%" class="text-center">View Profile</th>
+                    <th width="15%" class="text-center">View Dealer Selected Product</th>
+                    <th width="15%" class="text-center">Reject</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if institution_dealers_completeds %}
+                    {% for dealer_list in institution_dealers_completeds %}
+                    <tr>
+                        <td class="text-center">{{ forloop.counter}}</td>
+                        <td>{{dealer_list.User.first_name }} {{dealer_list.User.last_name }} - {{dealer_list.User.username }}</td>
+                        <td>{{dealer_list.Address.city }}</td>
+                        <td class="text-center">
+                            <a href="javascript:void(0);" class="btn btn-primary get_jq_val" data-toggle="modal" data-target="#DealerDetails" data-id="{{dealer_list.User.id}}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                    <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+                                    <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+                                </svg>
+                            </a>
+                        </td>
+                        <td class="text-center">    
+                            <a href="javascript:void(0);" class="btn btn-primary a_get_company" data-toggle="modal" data-target="#approvebycompany" data-id="{{dealer_list.User.username}}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                    <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+                                    <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+                                </svg>
+                            </a>
+                        </td>
+                        <td class="text-center">    
+                            <a href="javaScript:void(0);" data-toggle="modal" data-url ="{% url 'remove_dealer_pending' %}"
+                            data-target="#deleteProductModal" class="btn btn-primary delete-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
+                                <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>
+                            </svg>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="6">No Data Found</td>
+                </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block customJsBlock %}
+<!-- Page level plugins -->
+<script src='{% static "veloce-store/vendor/datatables/jquery.dataTables.min.js" %}'></script>
+<script src='{% static "veloce-store/vendor/datatables/dataTables.bootstrap4.min.js" %}'></script>
+<!-- Page level custom scripts -->
+<script src='{% static "veloce-store/vendor/datatables/datatables-demo.js" %}'></script>
+<script src='{% static "veloce-store/js/product-page.js" %}'></script>
+
+<script>
+    $(document).ready(function(){
+        $('.get_jq_val').on('click',function(){
+            var _id = $(this).data("id");
+            var token = $("input[name=csrfmiddlewaretoken]").val();
+            //alert(_id);
+            $.ajax({
+                    url: "{% url 'dealer_list' %}",
+                    type: "post",
+                    data:{"id": _id,'csrfmiddlewaretoken': token},
+                    success: function (data) {
+                        //console.log(data.ajax_dealer);
+                        $('#display_data_dealer').empty();
+                        $('#display_data_dealer1').empty();
+                        $('#display_data_dealer2').empty();
+                        $('#display_data_dealer3').empty();
+                        $('#display_data_dealer4').empty();
+                        $('#display_data_dealer5').empty();
+                        $('#display_data_dealer6').empty();
+                        $('#display_data_dealer7').empty();
+                        $('#display_data_dealer8').empty();
+                        //for (var key in data.ajax_dealer)
+                        //{
+                            //console.log(data.ajax_dealer[key]);
+                            //console.log(data.ajax_dealer[key]);
+                        //}
+                        var common_error = "<tr>"+
+                                "<th width='25%' class='text-center'>Fields</th>"+
+                                "<td> This fields are not uploded by user or does not get</td>"+
+                            "</tr>";
+
+                        if (data.ajax_dealer.User != null) {
+                            var general_details = "<tr>"+
+                                            "<th width='25%' class='text-center'>Full Name</th>"+
+                                            "<td>"+data.ajax_dealer.User.first_name+' '+data.ajax_dealer.General.father_husband_no+' '+data.ajax_dealer.User.last_name+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>Father/Husband Name</th>"+
+                                            "<td>"+data.ajax_dealer.General.father_husband_no+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>Email</th>"+
+                                            "<td>"+data.ajax_dealer.User.email+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>Phone Number</th>"+
+                                            "<td>"+data.ajax_dealer.Phone.phone_number+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>Birthdate</th>"+
+                                            "<td>"+data.ajax_dealer.General.birthdate+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>Gender</th>"+
+                                            "<td>"+data.ajax_dealer.General.gender+"</td>"+
+                                        "</tr>"+
+                                        // "<tr>"+
+                                        //     "<th width='25%' class='text-center'>Address</th>"+
+                                        //     "<td>"+data.ajax_dealer.Address.unit_number+ ", " +data.ajax_dealer.Address.street_address+"</td>"+
+                                        // "</tr>"+
+                                        // "<tr>"+
+                                        //     "<th width='25%' class='text-center'>City - State</th>"+
+                                        //     "<td>"+data.ajax_dealer.Address.city+ " - " +data.ajax_dealer.Address.state+"</td>"+
+                                        // "</tr>"+
+                                        // "<tr>"+
+                                        //     "<th width='25%' class='text-center'>state</th>"+
+                                        //     "<td>"+data.ajax_dealer.Address.state+"</td>"+
+                                        // "</tr>"+
+                                        // "<tr>"+
+                                        //     "<th width='25%' class='text-center'>Pin Code</th>"+
+                                        //     "<td>"+data.ajax_dealer.Address.pin_code+"</td>"+
+                                        // "</tr>"+
+                                        
+                                        // "<tr>"+
+                                        //     "<th width='25%' class='text-center'>Residence proof</th>"+
+                                        //     "<td><a href='"+data.ajax_dealer.Address.proof+"'>proof</a></td>"+
+                                        // "</tr>"+
+                                        // "<tr>"+
+                                        //     "<th width='25%' class='text-center'>Aadhar Number</th>"+
+                                        //     "<td>"+data.ajax_dealer.AuthAdditionalCompanyDetails.aadhar_number+"</td>"+
+                                        // "</tr>"+
+                                        // "<tr>"+
+                                        //     "<th width='25%' class='text-center'>PAN Number</th>"+
+                                        //     "<td>"+data.ajax_dealer.AdditionalCompanyDetails.pan_number+"</td>"+
+                                        // "</tr>"+
+                                        
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>Dependents</th>"+
+                                            "<td>"+data.ajax_dealer.General.dependents+"</td>"+
+                                        "</tr>"+
+                                        // "<tr>"+
+                                        //     "<th width='25%' class='text-center'>Contact Number</th>"+
+                                        //     "<td>"+data.ajax_dealer.Address.tel_number+"</td>"+
+                                        // "</tr>"+
+                                        
+                                        
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>Net Monthly Income</th>"+
+                                            "<td>"+data.ajax_dealer.General.net_monthly_income+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>associated_professional_institute</th>"+
+                                            "<td>"+data.ajax_dealer.General.associated_professional_institute+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>education_level</th>"+
+                                            "<td>"+data.ajax_dealer.General.education_level+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>marital_status</th>"+
+                                            "<td>"+data.ajax_dealer.General.marital_status+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>org_name</th>"+
+                                            "<td>"+data.ajax_dealer.General.org_name+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>pos_in_company</th>"+
+                                            "<td>"+data.ajax_dealer.General.pos_in_company+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>registration_number</th>"+
+                                            "<td>"+data.ajax_dealer.General.registration_number+"</td>"+
+                                        "</tr>";
+
+                                $('#display_data_dealer').html(general_details)
+
+                            
+                        } else {
+                            general_details = common_error
+                            $('#display_data_dealer').html(general_details)
+                        }
+
+                        if (data.ajax_dealer.CompanyDetails != null) {
+                            var company_details = "<tr>"+
+                                            "<th width='25%' class='text-center'>aadhar_number</th>"+
+                                            "<td>"+data.ajax_dealer.CompanyDetails.aadhar_number+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>din_number</th>"+
+                                            "<td>"+data.ajax_dealer.CompanyDetails.din_number+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>pan_number</th>"+
+                                            "<td>"+data.ajax_dealer.CompanyDetails.pan_number+"</td>"+
+                                        "</tr>";
+                                $('#display_data_dealer2').html(company_details)
+                            
+                        } else {
+                            company_details = common_error
+                            $('#display_data_dealer2').html(company_details)
+                        }
+
+                        if (data.ajax_dealer.Address != null) {
+                            var address_details =    "<tr>"+
+                                            "<th width='25%' class='text-center'>city</th>"+
+                                            "<td>"+data.ajax_dealer.Address.city+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>Effective Month</th>"+
+                                            "<td>"+data.ajax_dealer.Address.effective_month+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>effective_year</th>"+
+                                            "<td>"+data.ajax_dealer.Address.effective_year+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>pin_code</th>"+
+                                            "<td>"+data.ajax_dealer.Address.pin_code+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>state</th>"+
+                                            "<td>"+data.ajax_dealer.Address.state+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>tel_number</th>"+
+                                            "<td>"+data.ajax_dealer.Address.tel_number+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>unit_number</th>"+
+                                            "<td>"+data.ajax_dealer.Address.unit_number+"</td>"+
+                                        "</tr>";
+                            $('#display_data_dealer1').html(address_details)
+                            
+                        } else {
+                            address_details = common_error
+                            $('#display_data_dealer1').html(address_details)
+                        }             
+                            
+                                        
+                        if (data.ajax_dealer.User != null) {
+                            var additional_company_details =    "<tr>"+
+                                            "<th width='25%' class='text-center'>gst_number</th>"+
+                                            "<td>"+data.ajax_dealer.AdditionalCompanyDetails.gst_number+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>pan_number</th>"+
+                                            "<td>"+data.ajax_dealer.AdditionalCompanyDetails.pan_number+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>udyog_aadhar_number</th>"+
+                                            "<td>"+data.ajax_dealer.AdditionalCompanyDetails.udyog_aadhar_number+"</td>"+
+                                        "</tr>";
+                                $('#display_data_dealer3').html(additional_company_details)
+                        } else {
+                            additional_company_details = common_error
+                            $('#display_data_dealer3').html(additional_company_details)
+                        }
+
+                                
+                                    
+                        if (data.ajax_dealer.Bank != null) {
+                            var bank_details = "<tr>"+
+                                            "<th width='25%' class='text-center'>account_no</th>"+
+                                            "<td>"+data.ajax_dealer.Bank.account_no+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>bank_acc_type</th>"+
+                                            "<td>"+data.ajax_dealer.Bank.bank_acc_type+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>bank_address</th>"+
+                                            "<td>"+data.ajax_dealer.Bank.bank_address+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>bank_name</th>"+
+                                            "<td>"+data.ajax_dealer.Bank.bank_name+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>branch_name</th>"+
+                                            "<td>"+data.ajax_dealer.Bank.branch_name+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>ifsc_code</th>"+
+                                            "<td>"+data.ajax_dealer.Bank.ifsc_code+"</td>"+
+                                        "</tr>";
+                                $('#display_data_dealer4').html(bank_details)
+                            
+                        } else {
+                            bank_details = common_error
+                            $('#display_data_dealer4').html(bank_details)
+                        }
+                                        
+                                
+
+                                    
+                        if (data.ajax_dealer.AuthAdditionalCompanyDetails != null) {
+                            var authadditionalcompany_details ="<tr>"+
+                                            "<th width='25%' class='text-center'>aadhar_number</th>"+
+                                            "<td>"+data.ajax_dealer.AuthAdditionalCompanyDetails.aadhar_number+"</td>"+
+                                        "</tr>"+
+                                        "<tr>"+
+                                            "<th width='25%' class='text-center'>din_number</th>"+
+                                            "<td>"+data.ajax_dealer.AuthAdditionalCompanyDetails.din_number+"</td>"+
+                                        "</tr>";
+                                $('#display_data_dealer5').html(authadditionalcompany_details)
+                        } else {
+                            authadditionalcompany_details = common_error
+                            $('#display_data_dealer5').html(authadditionalcompany_details)
+                        }                    
+                                
+    
+                        // THIS IS 6 DISPLAY DATA
+                        if (data.ajax_dealer.BankStatement != null) {
+                            var arr =  data.ajax_dealer.BankStatement;
+                            for( var i = 0, len = arr.length; i < len; i++ ) {
+                                obj = arr[i]
+                                $.each(obj,function(index,value){ 
+                                    //console.log(index,value.month);
+                                    var bank_statement_details = "<tr>"+
+                                                                    "<th width='25%' class='text-center'>Statement "+value.year+"</th>"+
+                                                                    "<td> M: "+value.month+" Y: "+value.year+" " + " <i class='fa fa-check-circle' style='color: #009957;' aria-hidden='true'></i></td>"+
+                                                                "</tr>"
+                                    $('#display_data_dealer6').append(bank_statement_details);
+                                    
+                                });
+                            };
+                        } else {
+                        }
+                        
+
+                        // THIS IS 7 DISPLAY DATA
+                        if (data.ajax_dealer.BusinessFinancial != null) {
+                            var arr =  data.ajax_dealer.BusinessFinancial;
+                            for( var i = 0, len = arr.length; i < len; i++ ) {
+                                obj = arr[i]
+                                $.each(obj,function(index,value){ 
+                                    //console.log(index,value.capital_reserves);
+                                    var business_financial_details = "<tr>"+
+                                                                    "<th width='25%' class='text-center' colspan='2'>" +index+ " <i class='fa fa-check-circle' style='color: #009957;' aria-hidden='true'></i></th>"+
+                                                                "</tr>"+
+                                                                "<tr>"+
+                                                                    "<th width='25%' class='text-center'>capital_reserves</th>"+
+                                                                    "<td>"+value.capital_reserves+ "</td>"+
+                                                                "</tr>"+
+                                                                "<tr>"+
+                                                                    "<th width='25%' class='text-center'>current_assets</th>"+
+                                                                    "<td>"+value.current_assets+ "</td>"+
+                                                                "</tr>"+
+                                                                "<tr>"+
+                                                                    "<th width='25%' class='text-center'>current_liablities</th>"+
+                                                                    "<td>"+value.current_liablities+ "</td>"+
+                                                                "</tr>"+
+                                                                "<tr>"+
+                                                                    "<th width='25%' class='text-center'>depreciate</th>"+
+                                                                    "<td>"+value.depreciate+ "</td>"+
+                                                                "</tr>"+
+                                                                "<tr>"+
+                                                                    "<th width='25%' class='text-center'>finance_year</th>"+
+                                                                    "<td>"+value.finance_year+ "</td>"+
+                                                                "</tr>"+
+                                                                "<tr>"+
+                                                                    "<th width='25%' class='text-center'>interest_expense</th>"+
+                                                                    "<td>"+value.interest_expense+ "</td>"+
+                                                                "</tr>"+
+                                                                "<tr>"+
+                                                                    "<th width='25%' class='text-center'>profit_befor_interest</th>"+
+                                                                    "<td>"+value.profit_befor_interest+ "</td>"+
+                                                                "</tr>"+
+                                                                "<tr>"+
+                                                                    "<th width='25%' class='text-center'>profite_after_tax</th>"+
+                                                                    "<td>"+value.profite_after_tax+ "</td>"+
+                                                                "</tr>"+
+                                                                "<tr>"+
+                                                                    "<th width='25%' class='text-center'>tax</th>"+
+                                                                    "<td>"+value.tax+ "</td>"+
+                                                                "</tr>"+
+                                                                "<tr>"+
+                                                                    "<th width='25%' class='text-center'>total_borrowing</th>"+
+                                                                    "<td>"+value.total_borrowing+ "</td>"+
+                                                                "</tr>"+
+                                                                "<tr>"+
+                                                                    "<th width='25%' class='text-center'>turnover_revenue</th>"+
+                                                                    "<td>"+value.turnover_revenue+ "</td>"+
+                                                                "</tr>"
+                                    $('#display_data_dealer7').append(business_financial_details);
+                                    
+                                });
+                            };
+                        } else {
+                        }
+
+                        // THIS IS 8 DISPLAY DATA
+                        if (data.ajax_dealer.IncomeTaxReturn != null) {
+                            var arr =  data.ajax_dealer.IncomeTaxReturn;
+                            for( var i = 0, len = arr.length; i < len; i++ ) {
+                                obj = arr[i]
+                                $.each(obj,function(index,value){ 
+                                    //console.log(index,value.capital_reserves);
+                                    var income_tax_return_details = "<tr>"+
+                                                                    "<th width='25%' class='text-center'>years"+value.year+"</th>"+
+                                                                    "<td><i class='fa fa-check-circle' style='color: #009957;' aria-hidden='true'></i></td>"+
+                                                                "</tr>"
+                                                                
+                                    $('#display_data_dealer8').append(income_tax_return_details);
+                                    
+                                });
+                            };
+                        } else {
+                        }
+
+                        //console.log(data.ajax_dealer.first_name);
+                    },
+
+            });
+        });
+
+        $('.approve_dealer').on('click',function(){
+            var _id = $(this).data("id");
+            console.log(_id);
+            $('#pendingToApproveComToDealer').attr('data-id',_id);
+        });
+
+        $('#pendingToApproveComToDealer').on('click',function(){
+            var _id = $(this).data("id");
+            console.log(_id);
+            $.ajax({
+                url: "{% url 'approveby_institution' %}",
+                type: "get",
+                data:{"user": _id},
+                success: function (data) {
+                    console.log('done');
+                    location.reload();
+                },
+                error:function(data){
+                },
+
+            });
+        });
+
+
+        $('.a_dealer_select').on('click',function(){
+            var _id = $(this).data("id");
+            console.log(_id);
+            $('#get_id').attr('data-id',_id);
+        });
+
+        $('#get_id').on('click',function(e){
+            //e.preventDefault();
+            var _id = $(this).data("id");
+            var token = $("input[name=csrfmiddlewaretoken]").val();
+
+            $.ajax({
+                url: "{% url 'ajax_approve_dealer' %}",
+                type: "post",
+                data:{"id": _id,'csrfmiddlewaretoken': token},
+                success: function (data) {
+                    //console.log('done',data);
+                    var send_msg = " <div class='alert alert-"+data.alart_class+" alert-dismissible mt-3' role='alert'>"+
+                            "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>"+
+                                "<span aria-hidden='true'>×</span>"+
+                            "</button>"+ data.messages
+                        "</div>";
+                
+                    $('.msg_ajax_add').html(send_msg)
+                },
+                error:function(data){
+                },
+
+            });
+        });
+
+        $('.delete-btn').on('click',function(){
+            var _id = $(this).data("id");
+            var _url = $(this).data("url");
+            $('#delete-record').attr('href',_url)
+        });
+
+        $('.a_get_company').on('click',function(){
+            var _id = $(this).data("id");
+            $('#get_deler_email_name').val(_id);
+            var token = $("input[name=csrfmiddlewaretoken]").val();
+
+            $.ajax({
+                url: "{% url 'view_dealer_selected_by_institution' %}",
+                type: "post",
+                data:{"email": _id,'csrfmiddlewaretoken': token},
+                success: function (data) {
+                    console.log('done',data.selected_product_display_list);
+                    $('#display_select_product_data').empty();
+                    var array_aa = data.selected_product_display_list;
+                    if(array_aa != '')
+                    {
+                        $(data.selected_product_display_list).each(function(index,value){ 
+                            var index = index+1
+                            var product_data1 = "<tr>"+
+                                "<td style='text-align: center;'>"+index+"</td>"+
+                                "<td style='text-align: center;'><img src='/media/"+value.product_img+"'></td>"+
+                                "<td>"+value.Product_name+"</td>"+
+                                "<td>"+value.Product_sub_category+"</td>";
+                            
+                            var product_data2 = ""
+                            if(value.is_status === 'Approved') {
+                                var product_data2 = "<td class='text-center'>"+
+                                                        "<div class='btn-group btn-group-toggle' data-toggle='buttons'>"+
+                                                            "<label class='btn btn-outline-success active'>"+
+                                                                "<input type='radio' value='approved' name='status_radio' id='approved_radio' autocomplete='off' checked> Approve"+
+                                                            "</label>"+
+                                                            "<label class='btn btn-outline-danger'>"+
+                                                                "<input type='radio' value='rejected' name='status_radio' id='rejected_radio' autocomplete='off'> Reject"+
+                                                            "</label>"+
+                                                        "</div>"+
+                                                    "</td>"+
+                                                    "<td><button class='btn' style='background-color: green;border-color: green; color: white;' disabled >"+value.is_status+"</button></td>";
+                            }else if(value.is_status === 'Rejected') {
+                                var product_data2 = "<td class='text-center'>"+
+                                                        "<div class='btn-group btn-group-toggle' data-toggle='buttons'>"+
+                                                            "<label class='btn btn-outline-success active'>"+
+                                                                "<input type='radio' value='approved' name='status_radio' id='approved_radio' autocomplete='off' checked> Approve"+
+                                                            "</label>"+
+                                                            "<label class='btn btn-outline-danger'>"+
+                                                                "<input type='radio' value='rejected' name='status_radio' id='rejected_radio' autocomplete='off'> Reject"+
+                                                            "</label>"+
+                                                        "</div>"+
+                                                    "</td>"+
+                                                    "<td><button class='btn' style='background-color: #cc0000;border-color: #cc0000; color: white;' disabled >"+value.is_status+"</button></td>";
+                            } else {
+                                var product_data2 = "<td class='text-center'>"+
+                                        "<div class='btn-group btn-group-toggle' data-toggle='buttons'>"+
+                                            "<label class='btn btn-outline-success active'>"+
+                                                "<input type='radio' value='approved' name='status_radio' id='approved_radio' autocomplete='off' checked> Approve"+
+                                            "</label>"+
+                                            "<label class='btn btn-outline-danger'>"+
+                                                "<input type='radio' value='rejected' name='status_radio' id='rejected_radio' autocomplete='off'> Reject"+
+                                            "</label>"+
+                                        "</div>"+
+                                    "</td>"+
+                                    "<td class='text-center'>"+
+                                        "<a type='submit' value='submit' class='btn btn-success' href='javascript:void(0);' onclick='updateProductStatus("+value.product_id+");'>Confirm</a>"+
+                                    "</td>";
+                            }                            
+                            var product_data3 = "</tr>";
+                            var product_data = product_data1+product_data2+product_data3;
+                            $('#display_select_product_data').append(product_data)
+                        });
+                    }
+                    else
+                    {
+                        $("#dataTableProduct_List").remove();
+                        var product_data ="<div class='alert alert-danger text-center font-weight-bold' role='alert'>"+
+                                    "No Product Selected, Yet."+
+                                "</div>";
+                                $('#productListModelBody').html(product_data);
+                    }
+                },
+                error:function(data){
+                },
+            });
+        });
+
+        $('.removeCrossQuery').on('click',function(){
+            var _id = $(this).data("id");
+            $('#cross-delete-record').attr('data-id',_id);
+            // $('getCrossReason').val();
+        });
+
+        $('#cross-delete-record').on('click',function(e){
+            var email = $(this).data("id");
+            var reason = $('#getCrossReason').val();
+            var token = $("input[name=csrfmiddlewaretoken]").val();
+            if (reason != ''){
+                //alert('ok');
+                $.ajax({
+                url: "{% url 'cross_delete_record_reason' %}",
+                type: "post",
+                data:{"reason":reason,'email':email,'csrfmiddlewaretoken': token},
+                success: function (data) {
+                    console.log('success',data);
+                    }
+                });
+            }else{
+                e.preventDefault()
+                alert('please enter reason');
+            }
+            //alert(reason);
+        });
+
+    }); // starting tag
+
+
+</script>
+<script>
+function updateProductStatus(id)
+{
+    var sel_status = $("input[type='radio'][name='status_radio']:checked").val();
+    if(sel_status == 'rejected')
+    {
+        $("#statusRejectModel").modal("show");
+        $("#rejectRequestSubmitbtn").click(function() {
+            var rejected_reason = $("#rejectedReason").val();
+            var dealer_email = $('#get_deler_email_name').val();
+            $.ajax({
+                url: "{% url 'approve_company_selected_product' %}",
+                type: "get",
+                data:{"reason":rejected_reason,'product_id': id,'dealer_email':dealer_email},
+                success: function (data) {
+                    console.log(data);
+                }
+            });
+        });
+    }
+    else{
+        $("#ConfirmProduct").modal("show");
+        $('#approveRequestSubmitbtn').click(function() {
+            var dealer_email = $('#get_deler_email_name').val();
+            $.ajax({
+                url: "{% url 'approve_company_selected_product' %}",
+                type: "get",
+                data:{'product_id': id,'dealer_email':dealer_email},
+                success: function (data) {
+                    console.log(data);
+                    location.reload();
+                }
+            });
+        });
+    }
+}
+</script>
+<script>
+function closemodal(modalname)
+{
+    $("#"+modalname).modal('toggle');
+}
+</script>
+{% endblock %}

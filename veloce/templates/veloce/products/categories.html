@@ -1,0 +1,51 @@
+{% extends 'veloce/layout/index.html' %}
+{% load static %}
+
+
+{% block search%}
+<div class="search search-box">
+    <form id="search" method="POST" action="{% url 'search' %}">
+        {% csrf_token %}
+        <img src='{% static "veloce-store/icons/basic_magnifier.svg" %}' width="20" alt="heart">
+        <input type="text" placeholder="Search" style="width: 93%;" id="txtSearch" name="txtSearch">
+        <button class="btn btn-primary" style="border-radius: 20px;"><i class="fa fa-search" aria-hidden="true"></i></button>
+    </form>
+</div>
+{%endblock%}
+{% block customCssBlock %}
+<link rel="stylesheet" href='{% static "veloce-store/css/home-page.css" %}'>
+{% endblock %}
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+        <li class="breadcrumb-item active"><a href="javascript:void(0);">Categories</a></li>
+      </ol>
+    </nav>
+{% endblock breadcrumb %}
+{% block content %}
+<div class="row-fluid">
+    <div class="col-12" style="padding: 0">
+        <div class="row-title">
+            <h2>Categories</h2>
+            <span class="view-more">View More</span>
+        </div>
+
+    </div>
+</div>
+<div class="row">
+    {% if all_categories %}
+        {% for category in all_categories %}
+            <div class="col-md-3">
+                <div class="tile background" id="{{category.name}}">
+                    <a href="{% url 'all_sub_categories' category.slug %}">
+                        <div class="tile foreground img-thumbnail" style="background-repeat: no-repeat; background-size: contain; background-image: url({{ category.category_img.name|slice:"6:" }})">
+                            <p style="font-size: 17px; width: 100%; margin:0px; background: #fff;">{{category.name}}</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}

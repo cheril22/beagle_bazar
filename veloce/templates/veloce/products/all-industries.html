@@ -1,0 +1,33 @@
+{% extends 'veloce/layout/index.html' %}
+{% load static %}
+
+{% block customCssBlock %}
+<link rel="stylesheet" href='{% static "veloce-store/css/home-page.css" %}'>
+{% endblock %}
+
+{% block content %}
+<div class="row-fluid">
+    <div class="col-12" style="padding: 0">
+        <div class="row-title">
+            <h2>Industry</h2>
+            <span class="view-more">View More</span>
+        </div>
+
+    </div>
+</div>
+<div class="row">
+    {% if all_industry %}
+        {% for industry in all_industry %}
+            <div class="col-md-3">
+                <div class="tile background" id="{{industry.name}}">
+                    <a href="{% url 'all_products_by_industry' industry.slug %}">
+                        <div class="tile foreground green">
+                            <p style="width: 100%; margin:0px; background: #fff;">{{industry.name}}</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}

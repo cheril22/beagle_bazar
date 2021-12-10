@@ -1,0 +1,335 @@
+{% extends 'veloce/layout/index.html' %}
+{% load auth_tag %}
+{% load static %}
+
+{% block title %}Product Listing Page{% endblock %}
+
+{% block customCssBlock %}
+<style>
+    .error{
+        display: none;
+        margin-left: 10px;
+    }
+
+    .error_show{
+        color: red;
+        margin-left: 10px;
+    }
+
+    .removeImg {
+        position: absolute;
+        top: 2px;
+        /* right: 52px; */
+        left: 34px;
+        z-index: 100;
+        background-color: red;
+        padding: 3px 2px 2px;
+        color: #ffff;
+        font-weight: bolder;
+        cursor: pointer;
+        opacity: 0.5;
+        font-size: 14px;
+        line-height: 10px;
+        border-radius: 50%;
+    }
+
+    .removePdf {
+        position: absolute;
+        top: 2px;
+        /* right: 52px; */
+        left: 16px;
+        z-index: 100;
+        background-color: red;
+        padding: 3px 2px 2px;
+        color: #ffff;
+        font-weight: bolder;
+        cursor: pointer;
+        opacity: 0.5;
+        font-size: 14px;
+        line-height: 10px;
+        border-radius: 50%;
+    }
+
+
+    .main_img_rm {
+        position: absolute;
+        top: 2px;
+        left: 34px;
+        z-index: 100;
+        background-color: red;
+        padding: 3px 2px 2px;
+        color: #ffff;
+        font-weight: bolder;
+        cursor: pointer;
+        opacity: 0.5;
+        font-size: 14px;
+        line-height: 10px;
+        border-radius: 50%;
+    }
+
+    input[type="file"] {
+      display: block;
+    }
+    .imageThumb {
+      max-height: 23px;
+      border: 1px solid;
+      cursor: pointer;
+    }
+
+    .img-wrap {
+        position: relative;
+        width: 50px;
+        float: left;
+        display: inline-flex;
+        margin-top: 7px;
+        vertical-align: top;
+    }
+    .imageThumb {
+        max-height: 40px;
+        border: 1px solid;
+        cursor: pointer;
+        width: 48px;
+        height: 40px;
+    }
+    .remove{
+        position: absolute;
+        top: 2px;
+        right: 4px;
+        z-index: 100;
+        background-color: red;
+        padding: 3px 2px 2px;
+        color: #ffff;
+        font-weight: bolder;
+        cursor: pointer;
+        opacity: 0.5;
+        font-size: 14px;
+        line-height: 10px;
+        border-radius: 50%;
+    }
+    .preview-modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 10000 !important; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
+    }
+
+    /* Modal Content (image) */
+    .preview-modal-content {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 700px;
+    }
+
+    /* Caption of Modal Image */
+    #caption {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 700px;
+    text-align: center;
+    color: #ccc;
+    padding: 10px 0;
+    height: 150px;
+    }
+
+    /* Add Animation */
+    .preview-modal-content, #caption {
+    -webkit-animation-name: zoom;
+    -webkit-animation-duration: 0.6s;
+    animation-name: zoom;
+    animation-duration: 0.6s;
+    }
+
+    @-webkit-keyframes zoom {
+    from {-webkit-transform:scale(0)}
+    to {-webkit-transform:scale(1)}
+    }
+
+    @keyframes zoom {
+    from {transform:scale(0)}
+    to {transform:scale(1)}
+    }
+
+    /* The Close Button */
+    .close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #c1c1c1;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+    }
+
+    .close:hover,
+    .close:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+    }
+
+    /* 100% Image Width on Smaller Screens */
+    @media only screen and (max-width: 700px){
+    .preview-modal-content {
+        width: 100%;
+    }
+    }
+    .pdf-wrap {
+    position: relative;
+    width: 32px;
+    height: 20px;
+    float: left;
+    display: inline-block;
+    margin-top: 8px;
+    vertical-align: top;
+    margin-left: 5px;
+}
+
+    .removeImg {
+        position: absolute;
+        top: 2px;
+        /* right: 52px; */
+        left: 34px;
+        z-index: 100;
+        background-color: red;
+        padding: 3px 2px 2px;
+        color: #ffff;
+        font-weight: bolder;
+        cursor: pointer;
+        opacity: 0.5;
+        font-size: 14px;
+        line-height: 10px;
+        border-radius: 50%;
+    }
+
+    .removePdf {
+        position: absolute;
+        top: 2px;
+        /* right: 52px; */
+        left: 16px;
+        z-index: 100;
+        background-color: red;
+        padding: 3px 2px 2px;
+        color: #ffff;
+        font-weight: bolder;
+        cursor: pointer;
+        opacity: 0.5;
+        font-size: 14px;
+        line-height: 10px;
+        border-radius: 50%;
+    }
+
+
+    .main_img_rm {
+        position: absolute;
+        top: 2px;
+        left: 34px;
+        z-index: 100;
+        background-color: red;
+        padding: 3px 2px 2px;
+        color: #ffff;
+        font-weight: bolder;
+        cursor: pointer;
+        opacity: 0.5;
+        font-size: 14px;
+        line-height: 10px;
+        border-radius: 50%;
+    }
+    .back-btn{
+        margin: 10px 20px;
+    }
+</style>
+<link href='{% static "veloce-store/vendor/datatables/dataTables.bootstrap4.min.css" %}' rel="stylesheet">
+<link rel="stylesheet" href='{% static "veloce-store/css/home-page.css" %}'>
+{% endblock %}
+
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'all_sub_categories' ratings.0.product.category.slug %}">{{ ratings.0.product.category.name }}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'products' ratings.0.product.category.slug  ratings.0.product.sub_category.slug %}">{{ ratings.0.product.sub_category.name }}</a></li>
+        <li class="breadcrumb-item active"><a href="javascript:void(0);">{{ ratings.0.product.name }}</a></li>
+      </ol>
+    </nav>
+{% endblock breadcrumb %}
+
+{% block content %}
+<!-- Page Heading -->
+<h1 class="h3 mb-2 text-gray-800 text-left">
+    Product Ratings
+</h1>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">{{ratings.0.product.name|title}} Ratings</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="financeTable" width="100%" cellspacing="0">
+                <thead>
+                <tr>
+                    <th class="text-center">No</th>
+                    <th class="text-center">Rated User</th>
+                    <th class="text-center">Rated User Name</th>
+                    <th class="text-center">Ratings</th>
+                    <th class="text-center">Message</th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% for rate in ratings %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td>{{rate.rated_by}}</td>
+                            <td>{{rate.rated_by.first_name}} {{rate.rated_by.last_name}}</td>
+                            <td>
+                                <div class="label-rating m-0">
+                                    <div class="star-ratings-sprite">
+                                        <span style="width:{{rate.rated_value|get_rating_percentage}}%" class="star-ratings-sprite-rating"></span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{rate.message}}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="back-btn">
+            <a class="btn btn-secondary" href="{% url 'product_details' ratings.0.product.slug %}">Back</a>
+        </div>
+</div>
+{% endblock %}
+{% block customJsBlock %}
+<script>
+    var modal = document.getElementById("myModal");
+        $(document).ready(function() {
+            $(document).on('click', '.preview-img', function(){
+                var img = $(this);
+                var modalImg = document.getElementById("img01");
+                var captionText = document.getElementById("caption");
+                modal.style.display = "block";
+                modalImg.src = this.src;
+                captionText.innerHTML = this.alt;
+            });
+        })
+
+        var span = document.getElementsByClassName("close")[1];
+        span.onclick = function() {
+        modal.style.display = "none";
+        }
+</script>
+<script src='{% static "veloce-store/vendor/datatables/jquery.dataTables.min.js" %}'></script>
+<script src='{% static "veloce-store/vendor/datatables/dataTables.bootstrap4.min.js" %}'></script>
+<script src='{% static "veloce-store/vendor/datatables/datatables-demo.js" %}'></script>
+<script src='{% static "veloce-store/js/product-page.js" %}'></script>
+{% endblock %}

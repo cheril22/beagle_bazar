@@ -1,0 +1,632 @@
+{% load auth_tag %}
+{% load social_share %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Beagle Bazaar | {% block title %} Home Page{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- open by ravi -->
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous"> -->
+    <!-- till here  -->
+    <link rel="stylesheet" href='{% static "veloce-store/vendor/bootstrap/css/bootstrap.min.css" %}'>
+    <link rel="stylesheet" href='{% static "veloce-store/css/colors.css" %}'>
+    <link rel="stylesheet" href='{% static "veloce-store/css/main.css" %}'>
+    <link rel="stylesheet" href='{% static "veloce-store/css/tiles.css" %}'>
+    <link rel="stylesheet" href='{% static "veloce-store/css/footer-style.css" %}'>
+    <link rel="stylesheet" href='{% static "custom.css" %}'>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="shortcut icon" href="/static/beaglelogo.png" type="image/x-png">
+    <!-- open by ravi -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css"> -->
+    <!-- <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"> -->
+     <!-- till here  -->
+    {% block customCssBlock %}
+
+    {% endblock %}
+    <style>
+        .ui-menu-item{
+            background: rgb(235 251 248) !important;
+            color: rgba(0, 0, 0, 0.6) !important;
+        }
+        .ui-menu-item-wrapper{
+            background: rgb(235 251 248) !important;
+            color: rgba(0, 0, 0, 0.6) !important;
+            border-color: rgba(0, 0, 0, 0.6) !important;
+        }
+        .ui-autocomplete{
+
+        }
+        label.required:after {
+            content: "*";
+            color: #da1113;
+        }
+        .alert{
+            font-size: 12px !important;
+            width: 100% !important;
+            float: left !important;
+            display: block;
+            margin-top: 2px !important;
+            margin-bottom: 0px !important;
+            height: 40px;
+            padding-top: 6px;
+        }
+
+        .btn-outline-info:hover {
+            color: #fff;
+            background-color: #009957;
+            border-color: #009957;
+        }
+        .btn-outline-info {
+            color: #009957;
+            border-color: #009957;
+        }
+    </style>
+</head>
+
+
+{% block body %}
+<body class="body">
+<div class="sidebar">
+    <div class="logo-block">
+         <a href="{% url 'index' %}">
+             <img src="/static/beaglelogo.png" alt="" class="imgs-fluid logo" />
+         </a>
+    </div>
+        <a href="{% url 'index' %}">
+            <div class="menu-item {% if request.path == '/' %} active {% endif %}">
+                <div class="menu-text">Home</div>
+            </div>
+        </a>
+        <a href="{% url 'all_categories' %}">
+            <div class="menu-item">
+                <div class="menu-text">Categories</div>
+            </div>
+        </a>
+        {% if user.is_authenticated %}
+            {% if not 1 in user_level.incomplete_level and not 1 in user_level.not_verified_level %}
+                <a href="{% url 'compare_product' %}">
+                    <div class="menu-item">
+                        <div class="menu-text">Compare Products</div>
+                    </div>
+                </a>
+                <a href="{% url 'inquiry_lists' %}">
+                    <div class="menu-item">
+                        <div class="menu-text">Inquiries</div>
+                    </div>
+                </a>
+                {% if not 2 in user_level.incomplete_level and not 2 in user_level.not_verified_level %}
+                    <a href="{% url 'get_reward_point' %}">
+                        <div class="menu-item">
+                            <div class="menu-text">Rewards</div>
+                        </div>
+                    </a>
+                {%else%}
+                    <a href="javaScript:void(0);">
+                        <div class="menu-item">
+                            <div class="menu-text {% if 2 in user_level.incomplete_level %} compare-products {% elif not 2 in user_level.incomplete_level and 2 in user_level.not_verified_level%} admin-approval {%endif%} " data-check-level="2">Rewards</div>
+                        </div>
+                    </a>
+                {%endif%}
+                <a href="http://192.168.0.20:7003/" target="_blank">
+                    <div class="menu-item">
+                        <div class="menu-text">Finance</div>
+                    </div>
+                </a>
+                {% if not 2 in user_level.complete_level and not 2 in user_level.not_verified_level %}
+                    {% if user|get_user_profile_level == 2 %}
+                        <a href="{% url 'products_listing' %}">
+                            <div class="menu-item">
+                                <div class="menu-text">Product Lists</div>
+                            </div>
+                        </a>
+                        <a href="{% url 'create_product' %}">
+                            <div class="menu-item">
+                                <div class="menu-text">Create Product</div>
+                            </div>
+                        </a>
+                    {% elif user|get_user_profile_level == 4 %}
+                        <!-- <a href="{% url 'products_listing' %}">
+                            <div class="menu-item">
+                                <div class="menu-text">Product Lists</div>
+                            </div>
+                        </a> -->
+                        <a href="{% url 'approveby_dealer' %}">
+                            <div class="menu-item">
+                                <div class="menu-text">Company Approve</div>
+                            </div>
+                        </a>
+                    {% else %}
+                    {% endif %}
+                {% endif %}
+                {% if user_level.incomplete_level|length <= 0 and user_level.not_verified_level|length <= 0 %}
+                    {% if user|get_user_profile_level == 2 %}
+                        <a href="{% url 'dealers_scheme_list' %}">
+                            <div class="menu-item">
+                                <div class="menu-text">Finance Scheme</div>
+                            </div>
+                        </a>
+                        <a href="{% url 'dealer_list' %}">
+                            <div class="menu-item">
+                                <div class="menu-text">Select Dealer</div>
+                            </div>
+                        </a>
+                    {% else %}
+                    {% endif %}
+                {% endif %}
+
+                {%elif 1 in user_level.incomplete_level and 1 in user_level.not_verified_level %}
+                    <a href="javaScript:void(0);">
+                        <div class="menu-item">
+                            <div class="menu-text compare-products" data-check-level="1">Compare Products</div>
+                        </div>
+                    </a>
+                    <a href="javaScript:void(0);">
+                        <div class="menu-item">
+                            <div class="menu-text compare-products" data-check-level="1">Inquiries</div>
+                        </div>
+                    </a>
+                    <a href="javaScript:void(0);">
+                        <div class="menu-item">
+                            <div class="menu-text compare-products" data-check-level="2">Rewards</div>
+                        </div>
+                    </a>
+                    <a href="http://192.168.0.20:7003/" target="_blank">
+                        <div class="menu-item">
+                            <div class="menu-text compare-products">Finance</div>
+                        </div>
+                    </a>
+                {%else %}
+                    <a href="javaScript:void(0);">
+                        <div class="menu-item">
+                            <div class="menu-text admin-approval" data-check-level="1">Compare Products</div>
+                        </div>
+                    </a>
+                    <a href="javaScript:void(0);">
+                        <div class="menu-item">
+                            <div class="menu-text admin-approval" data-check-level="1">Inquiries</div>
+                        </div>
+                    </a>
+                    <a href="javaScript:void(0);">
+                        <div class="menu-item">
+                            <div class="menu-text admin-approval" data-check-level="2">Rewards</div>
+                        </div>
+                    </a>
+                    <a href="http://192.168.0.20:7003/" target="_blank">
+                        <div class="menu-item">
+                            <div class="menu-text admin-approval">Finance</div>
+                        </div>
+                    </a>
+                {% endif %}
+                {% if 1 in user_level.incomplete_level or 1 in user_level.not_verified_level %}
+                    <a href="javaScript:void(0);">
+                        <div class="menu-item">
+                            <div class="menu-text sell-with-us"> Sell With Us</div>
+                        </div>
+                    </a>
+                {% endif %}
+            {% else %}
+                <!-- <a href="{% url 'compare_product' %}">
+                    <div class="menu-item">
+                        <div class="menu-text">Compare Products</div>
+                    </div>
+                </a> -->
+
+                <a href="javascript:void(0);" class="btn menu-text text-center" style="padding: 8px 40px;" data-toggle="modal" data-target="#SignIn" >
+                    Compare Products
+                </a>
+                <a href="javascript:void(0);" class="btn menu-text text-center" style="padding: 8px 40px;" data-toggle="modal" data-target="#SignIn" >
+                    Inquiries
+                </a>
+                <a href="javascript:void(0);" class="btn menu-text text-center" style="padding: 8px 40px;" data-toggle="modal" data-target="#SignIn" >
+                    Rewards
+                </a>
+                <a href="http://192.168.0.20:7003/" target="_blank">
+                    <div class="menu-item">
+                        <div class="menu-text">Finance</div>
+                    </div>
+                </a>
+                <a href="javaScript:void(0);">
+                    <div class="menu-item"> <div class="menu-text sell-with-us"> Sell With Us </div> </div>
+                </a>
+
+                {% if request.user.is_authenticated %}
+                <a href = "{{OAUTH_URL}}/overview">
+                    <div class="menu-item">
+                        <div class="menu-text">Edit Profile</div>
+                    </div>
+                </a>
+                <a href = "{{OAUTH_URL}}/accounts/change-password/">
+                    <div class="menu-item">
+                        <div class="menu-text">Change Password</div>
+                    </div>
+                </a>
+                {% else %}
+                <a href = "{{OAUTH_URL}}/accounts/register/">
+                    <div class="menu-item">
+                        <div class="menu-text">Register</div>
+                    </div>
+                </a>
+                <a href="javascript:void(0);" class="btn menu-text text-center" style="padding: 8px 40px;" data-toggle="modal" data-target="#SignIn" >
+                    Sign In
+                </a>
+                {% endif %}
+        
+                <!-- {%for item in menu%}
+                    <a href="{{item.url}}">
+                        <div class="menu-item">
+                            <div class="menu-text">{{item.name}} other</div>
+                        </div>
+                    </a>
+                {%endfor%} -->
+          <!-- Modal -->
+        <div class="modal fade" id="SignIn" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header" style="padding: 0px 15px;">
+                    <div class="logo-block"  style="padding: 0px; margin: 0px; max-width: 30%;">
+                        <a href="{% url 'index' %}">
+                            <img src="/static/beaglelogo.png" alt="" class="imgs-fluid logo" />
+                        </a>
+                   </div>
+                  <!-- <h5 class="modal-title" id="exampleModalLabel">Enter Login id and Password</h5> -->
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" id="loan_application_form" action="http://192.168.0.20:7004/accounts/login/?next=/o/authorize/%3Fclient_id%3DhG5XBhRRLwz4SVxQ9KlG5OBWF390XvWyjkzA1v4k%26redirect_uri%3Dhttp://192.168.0.20:7002/complete/vauth/%26response_type%3Dcode" novalidate="novalidate">
+                    <!-- <form method="post" id="loan_application_form" action="{{OAUTH_URL}}/accounts/login/?next=/o/authorize/%3Fclient_id%3DhG5XBhRRLwz4SVxQ9KlG5OBWF390XvWyjkzA1v4k%26redirect_uri%3Dhttp%3A//192.168.0.20%3A7002/complete/vauth/%26response_type%3Dcode" novalidate="novalidate"> -->
+                        {% csrf_token %}
+                        <div class="form-group row">
+                            <div class="form-group col-sm-12">
+                                <label for="id_email"><label class="required" for="id_email">Email:</label></label>
+                                <div class="d-block">
+                                    <input type="text" name="email" value="{{request.user.email}}" class="form-control" title="id_email" required id="id_email">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group col-sm-12">
+                                <label for="id_password"><label class="required" for="id_password">Password:</label></label>
+                                <div class="d-block">
+                                    <!-- Password: <input type="password" value="FakePSW" id="myInput"><br><br> -->
+                                    <input type="password" name="password" class="form-control" title="password" required id="id_password"><br>
+                                    <input type="checkbox" onclick="myFunction()"> Show Password
+                                 
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-2">
+                            <button class="btn btn-info" style="background-color: #009957;border-color: white;">Log in</button>
+                          </div>
+                        <!-- <button type="submit" id="verify_login_btn" class="btn btn-primary mt-2 book-sales-btn">Verify</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button> -->
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <div class="options text-center text-md-right mt-1">
+                      <p>Not a member? <a href = "http://192.168.0.20:7004/accounts/register/" class="blue-text">Register</a></p>
+                    </div>
+                    <button type="button" class="btn btn-outline-info waves-effect ml-auto" data-dismiss="modal">Close</button>
+                  </div>
+                <!-- <div class="modal-footer">
+                    <button type="submit" id="verify_login_btn" class="btn btn-primary mt-2 book-sales-btn">Verify</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div> -->
+              </div>
+            </div>
+          </div>
+        {% endif %}
+
+         <div style="margin-top: 6px;">
+                    <a href="http://www.facebook.com/sharer/sharer.php?u=http://117.217.126.114:8015{% url 'fb_text'|urlencode %}" target="_blank" style="margin-left: 38px;color: #000000;opacity: 0.6;"><span class="fa fa-facebook  "></span></a>
+                    <a href="https://www.linkedin.com/signup/cold-join?trk=guest_homepage-basic_nav-header-join"  target="_blank" style="margin-left: 10px;color: #000000;opacity: 0.6;"><span class="fa fa-linkedin "></span></a>
+                    <a href="https://www.instagram.com/accounts/login/?hl=en"  target="_blank" style="margin-left: 10px;color:#000000;opacity: 0.6;"><span class="fa fa-instagram "></span></a>
+                    <a href="https://web.whatsapp.com/"  target="_blank" style="margin-left: 10px;color: #000000;opacity: 0.6;"><span class="fa fa-whatsapp "></span></a>
+                    <a href="https://www.skype.com/en/features/skype-web/"  target="_blank" style="margin-left: 10px;color: #000000;opacity: 0.6;"><span class="fa fa-skype "></span></a>
+                    <a href="https://twitter.com/login" target="_blank" style="margin-left: 10px;color: #000000;opacity: 0.6;"><span class="fa fa-twitter "></span></a>  
+                </div>
+    </div>
+<div class="auto-container">
+    <!--Header Top-->
+    <div class="header-top"  style="padding: 20px 0px;">
+		<div class="auto-container">
+			<div class="clearfix">
+                <div class="row">
+                    <div class="col-md-2 col-sm-12 mobile-nav">
+                        <!--Top Left-->
+                        <div class="top-left">
+                            <ul class="header-info-list mobile-nav">
+                                <div class="menu-icon">
+                                    <span class="line"></span>
+                                    <span class="line"></span>
+                                    <span class="line"></span>
+                                </div>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-5 col-lg-6 col-sm-12 text-lg-left">
+                        <div class="logo">
+                         <lsi ><a href="mailto:beaglebazaar@gmail.com"><span class="icon fa fa-envelope"></span> beaglebazaar@gmail.com</a></lsi>
+                        </div>
+                    </div>
+                    <!--Top Right-->
+                    <div class="col-md-5 col-lg-6 col-sm-12 text-lg-right text-center">
+                        <div class="top-right" style=" margin-top: -12px;">
+                            
+                            <!--Social Box-->
+                            <ul class="social-box">
+                                {% if user.is_authenticated %}
+                                    <li>
+                                        <div class="dropdown show">
+                                            <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" style="color: #009958; background-color: #f9f8fc" aria-expanded="false">{{ user.first_name }} {{ user.last_name }}</a>
+                                              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
+                                                <a class="dropdown-item" href="#">{{ user.email }}</a>
+                                                <a class="dropdown-item" href="#"> (Registered Level – {{ user.profile.verification_level }} user)-({{ user.profile.account_type }})</a>
+                                                <a class="dropdown-item" href="{% url 'profile_overview' %}">Edit Profile</a>
+                                                <a class="dropdown-item" href="{% url 'change_password' %}">Change Password</a>
+                                                <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                                              </div>
+                                        </div>
+                                    </li>
+                                {% endif %}  
+                            </ul>  
+                        </div>
+                    </div>
+                </div>
+			</div>
+		</div>
+	</div>
+        <div class="col-md-12">
+            {% block search%}{%endblock%}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible mt-3" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% block breadcrumb %} {% endblock breadcrumb %}
+            {% block content %}{% endblock %}
+        </div>
+	    <div id="ytWidget"></div>
+        <div class="scroll-to-top scroll-to-target" data-target="html">
+            <span class="fa fa-angle-double-up"></span>
+        </div>
+
+        <!--Main Footer-->
+        <footer class="main-footer">
+            <div class="auto-container">
+                <!--Widgets Section-->
+                <div class="widgets-section">
+                    <div class="row clearfix">
+                        <!--Column-->
+                        <div class="big-column col-lg-12 col-md-12 col-sm-12">
+                            <div class="row clearfix">
+                                <!--Footer Column-->
+                                <div class="footer-column col-lg-4 col-md-4 col-sm-12 col-6">
+                                    <div class="footer-widget links-widget">
+                                        <h2>Connect with Us</h2>
+                                        <ul class="footer-link">
+                                            <li><a href="{% url 'about_veloce_market' %}">About Beagle Market</a></li>
+                                            <li><a href="{% url 'how_veloce_market_work' %}">How Beagle Market Works</a></li>
+                                            <li><a href="{% url 'testimonials' %}">Testimonials</a></li>
+                                            <li><a href="{% url 'contactus' %}">Contact Us</a></li>
+                                            <li><a href="{% url 'faqs_ftr' %}">FAQ's</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="footer-column col-lg-4 col-md-4 col-sm-12 col-6">
+                                    <div class="footer-widget links-widget">
+                                        <h2>Transaction</h2>
+                                        <ul class="footer-link">
+                                            <li><a href="{% url 'buy_sell' %}">Buy / Sell</a></li>
+                                            <li><a href="{% url 'equipment_finance' %}">Equipment Finance</a></li>
+                                            <li><a href="{% url 'bill_finance' %}">Invoice Finance</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="footer-column col-lg-4 col-md-4 col-sm-12 col-6">
+                                    <div class="footer-widget links-widget">
+                                        <h2>Policies</h2>
+                                        <ul class="footer-link">
+                                            <li><a href="{% url 'terms_of_use' %}">Terms of use</a></li>
+                                            <li><a href="{% url 'terms_of_use' %}">Privacy & Security Policy</a></li>
+<!--                                                <li><a href="{% url 'privacy_security_policy' %}">Privacy & Security Policy</a></li>-->
+<!--                                                <li><a href="{% url 'grievance_redressal' %}">Grievance Redressal</a></li>-->
+<!--                                                <li><a href="{% url 'fair_practices_code' %}">Fair Practices Code</a></li>-->
+<!--                                                <li><a href="{% url 'rbi_guidelines_disclaimer' %}">RBI Guidelines & Disclaimer</a></li>-->
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--Footer Bottom-->
+            <div class="footer-bottom">
+                <div class="auto-container">
+                    <div class="row clearfix">
+                        <div class="column col-md-5 col-sm-12 col-xs-12">
+                            <div class="copyright">Copyrights &copy; 2020 Beagle Bazaar. All Rights Reserved. </div>
+                        </div>
+                        <div class="column col-md-7 col-sm-12 col-xs-12">
+                            <ul class="footer-nav">
+<!--                                    <li><a href="{% url 'privacy_security_policy' %}">Privacy Policy</a></li>-->
+                                <li><a href="{% url 'terms_of_use' %}">Privacy Policy</a></li>
+                                <li><a href="{% url 'terms_of_use' %}">Legal Terms</a></li>
+                                <li><a href="{% url 'faqs_ftr' %}">FAQ’s</a></li>
+                                <li><a href="{% url 'support' %} ">Support</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!--End Main Footer-->
+        <!-- Modal -->
+        <div class="modal fade" id="SellWithUsModal" tabindex="-1" role="dialog" aria-labelledby="SellWithUsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="SellWithUsModalLabel">Profile Incomplete</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <p style="font-size: 50px; flex: 0; padding: 20px; padding-top:0px;">
+                                    ❌
+                                </p>
+                            </div>
+                            <div class="col-md-9">
+                                <div style="flex: 1; text-align: left; font-size: 18px;">
+                                    <p>
+                                        Your profile is not complete!
+                                        Please complete your profile by providing up to level – 2 information to be eligible to list your products with for selling on Beagle Bazaar
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary"><a href="{% url 'edit_profile' %}">Edit Profile</a></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+       <div class="modal fade" id="CompareProdModal" tabindex="-1" role="dialog" aria-labelledby="CompareProdModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="CompareProdModalLabel">Profile Incomplete</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <p style="font-size: 50px; flex: 0; padding: 20px; padding-top:0px;">
+                                    ❌
+                                </p>
+                            </div>
+                            <div class="col-md-9">
+                                <div style="flex: 1; text-align: left; font-size: 18px;">
+                                    <p>
+                                        Your profile is not complete!
+                                        Please complete your profile by providing up to level – <label id="check_level"></label> information to be eligible to use product comparison feature
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary"><a href="{% url 'edit_profile' %}">Edit Profile</a></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="AdminApprovalModal" tabindex="-1" role="dialog" aria-labelledby="CompareProdModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="AdminApprovalModalLabel">Pending Admin Approval</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <p style="font-size: 50px; flex: 0; padding: 20px; padding-top:0px;">
+                                    ❌
+                                </p>
+                            </div>
+                            <div class="col-md-9">
+                                <div style="flex: 1; text-align: left; font-size: 18px;">
+                                    <p>
+                                        Your level - <label id="check_level_approval"></label> profile info needs to be approved by admin first!
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+                    </div>
+                </div>
+            </div>
+       </div>
+
+
+    </div>
+    <script src="https://translate.yandex.net/website-widget/v1/widget.js?widgetId=ytWidget&pageLang=en&widgetTheme=dark&autoMode=false" type="text/javascript"></script>
+    <!-- open by ravi -->
+   <!-- <script src='{% static "veloce-store/vendor/jquery/js/jquery.js" %}'></script> -->
+   <!-- <script src='{% static "veloce-store/vendor/bootstrap/js/popper.min.js" %}'></script> -->
+   <!-- <script src='{% static "veloce-store/vendor/bootstrap/js/bootstrap.min.js" %}'></script> -->
+   <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> -->
+    <!-- till here -->
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <!--  open by ravi  -->
+   <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script> -->
+   <!-- till here  -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    {% block customJsBlock %}
+    {% endblock %}
+    <script src='{% static "veloce-store/js/custom.js" %}'></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src='{% static "veloce-store/vendor/jquery/js/jquery.validate.min.js" %}'></script>
+</body>
+{% endblock %}
+</html>
+<script>
+    var toggleButton = document.querySelector('.toggle-menu');
+var navBar = document.querySelector('.nav-bar');
+toggleButton.addEventListener('click', function () {
+	navBar.classList.toggle('toggle');
+});
+</script>
+<script>
+$(function(){
+    $('.menu-icon').on('click', function(){
+        if( $('.sidebar').is(':visible') ) {
+            $('.sidebar').animate({ 'width': '0px' }, 'fast', function(){
+                $('.sidebar').hide();
+            });
+            $('#main-content').animate({ 'margin-left': '0px' }, 'slow');
+        }
+        else {
+            $('.sidebar').show();
+            $('.sidebar').animate({ 'width': '210px' }, 'fast');
+            $('#main-content').animate({ 'margin-left': '210px' }, 'slow');
+        }
+    });
+});
+</script>
+<script>
+    function myFunction() {
+      var x = document.getElementById("id_password");
+      if (x.type === "password") {
+        x.type = "text";
+      } else {
+        x.type = "password";
+      }
+    }
+</script>

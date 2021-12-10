@@ -1,0 +1,42 @@
+<div class="modal fade" id="ratingModal" tabindex="-1" role="dialog" aria-labelledby="ratingModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ratingModalLabel">Give Rating</h5>
+                <button type="button" class="close close-modal" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'save_rating' %}">
+                    {% csrf_token %}
+                    <div class="form-group disp-inside">
+                        <fieldset class="rating star user-review-section">
+                            <input type="radio" id="field6_star5" name="rating2" value="5"/>
+                            <label class="full" for="field6_star5"></label>
+
+                            <input type="radio" id="field6_star4" name="rating2" value="4"/>
+                            <label class="full" for="field6_star4"></label>
+                            <input type="radio" id="field6_star3" name="rating2" value="3"/>
+                            <label class="full" for="field6_star3"></label>
+                            <input type="radio" id="field6_star2" name="rating2" value="2"/>
+                            <label class="full" for="field6_star2"></label>
+                            <input type="radio" id="field6_star1" name="rating2" value="1"/>
+                            <label class="full" for="field6_star1"></label>
+                        </fieldset>
+                        <input type="hidden" name="rated_value" id="rating-val">
+                        <input type="hidden" name="product" id="product-val">
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                    </div>
+                    <div class="form-group disp-inside">
+                        <label for="message-text" class="col-form-label">Message:</label>
+                        <textarea class="form-control" id="message-text" name="message"></textarea>
+                    </div>
+                    <button type="button" class="btn btn-secondary close-modal" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary js-save-rating">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

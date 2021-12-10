@@ -1,0 +1,448 @@
+{% extends 'veloce/layout/index.html' %}
+{% load auth_tag %}
+{% load static %}
+
+{% block customCssBlock %}
+<link rel="stylesheet" href='{% static "veloce-store/css/home-page.css" %}'>
+<link rel="stylesheet" href='{% static "veloce-store/vendor/bxslider/jquery.bxslider.css" %}'>
+{% endblock %}
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'all_sub_categories' product.category.slug %}">{{ product.category.name }}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'products' product.category.slug  product.sub_category.slug %}">{{ product.sub_category.name }}</a></li>
+        <li class="breadcrumb-item active"><a href="javascript:void(0);">{{ product.name }}</a></li>
+      </ol>
+    </nav>
+{% endblock breadcrumb %}
+{% block content %}
+
+<style>
+    @media only screen and (max-width:600px) {
+        .mobilecustomtabs{
+            display: inline-grid;
+            padding-bottom: 20px;
+        }
+        .mobilecustomtabs .nav-item
+        {
+            padding-bottom: 15px;
+            list-style: disc;
+            display: revert;
+        }
+        .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
+            box-shadow: 0 0 0 #ffffff !important;
+        }
+    }
+</style>
+<!-- Page Heading -->
+<h1 class="h3 mb-3 text-gray-800 text-left">
+    <div class="row">
+        <div class="col-md-10" id="product-name row-title">
+            {{ product.name }}
+        </div>
+        <div class="col-md-2">
+            {% if user.is_authenticated %}
+                {% if product.vendor.username != user.username %}
+                    {% if user.id|is_level_one_completed %}
+                        <!-- <a href="javascript:void(0);" class="btn btn-sm btn-primary float-right inq-btn" data-product-id="{{ product.id }}" data-toggle="modal" data-target="#inquiryModal">SUBMIT INQUIRY1</a> -->
+                        <a href="javascript:void(0);" class="btn btn-sm btn-primary float-right inq-btn" data-product-id="{{ product.id }}" style="padding: 8px 40px;" data-toggle="modal" data-target="#inquiryModal" >SUBMIT INQUIRY</a>
+                    {% else %}
+                        <!-- <a href="javascript:void(0);" class="btn btn-sm btn-primary float-right inq-btn">SUBMIT INQUIRY2</a> -->
+                        <a href="javascript:void(0);" class="btn btn-sm btn-primary float-right inq-btn" style="padding: 8px 40px;">SUBMIT INQUIRY</a>
+                    {% endif %}
+                {% endif %}
+            {% else %}
+                <!-- <a href="javascript:void(0);" class="btn btn-sm btn-primary d-block w-100 check-auth">SUBMIT INQUIRY3</a> -->
+                <a href="javascript:void(0);" class="btn btn-sm btn-primary float-right inq-btn" style="padding: 8px 40px;" data-toggle="modal" data-target="#SignIn" >
+                    SUBMIT INQUIRY
+                </a>
+            {% endif%}
+        </div>
+        {% if user.is_authenticated %}
+            {% if product.vendor.username != user.username %}
+                <div class="col-md-12">
+                    <div class="custom-control custom-checkbox mt-3 gift-card-block">
+                      <input type="checkbox" class="custom-control-input get-promo-code" id="checkPromoCode{{ product.id }}">
+                      <input type="hidden" name="product_id" value="{{ product.id }}">
+                      <label class="custom-control-label" for="checkPromoCode{{ product.id }}">Do you have a gift card voucher or discount code ?</label>
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</h1>
+<!-- DataTales Example -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h5 class="mb-2 font-weight-bold text-primary">
+            <span> General Informations </span>
+            {% if user.is_authenticated %}
+                {% if user.id|is_eligible_for_vendor %}
+                    <span class="float-right"> VIL Approved </span>
+                {% endif %}
+            {% endif %}
+        </h5>
+        {% include 'veloce/modal/display-rating.html' %}
+    </div>
+    <div class="card-body">
+        <form>
+            <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Product Name: </label>
+                <div class="col-sm-9">
+                    <label class="product-content">{{ product.name }}</label>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Product Type: </label>
+                <div class="col-sm-9">
+                    <label class="product-content">{{ product.sub_category.name }}</label>
+                </div>
+            </div>
+            <div class="form-group row">
+                {% if user.profile.is_complete and user.profile.is_verified %}
+                <label class="col-sm-3 col-form-label">Is Featured Product: </label>
+                {% endif %}
+                <div class="col-sm-9">
+                    {% if user.profile.is_complete and user.profile.is_verified %}
+                    <label class="product-content">{{product.is_featured_product|yesno:"Yes,No,None"}}</label>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="form-group row display-slider">
+                <div class="col-md-12">
+                    <h5 class="m-0 font-weight-bold text-primary" style="line-height: 30pt;">Product Images/Videos</h5>
+                </div>
+                {% if product.product_media.all %}
+                    <div class="slider col-md-3">
+                        <ul class="bxslider">
+                            {% for img in product.product_media.all %}
+                                {% if img.image %}
+                                    <li>
+                                        <img src='{{ img.image.name|slice:"6:" }}' title="{{ product.name }}" />
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                        {% if product.vendor.username == user.username %}
+                            <!--<div class="bx-pager">
+                                {% for img in product.product_media.all %}
+                                    {% if img.image %}
+                                        <a data-slide-index="0" href="">
+                                            {% if user.is_authenticated %}
+                                                {% if user.id|is_eligible_for_vendor %}
+                                                    <input type="checkbox" id="{{ img.id }}" {% if img.is_feature_image %} checked="checked" {% endif %} class="feature-img"> Make it as featured image
+                                                {% endif %}
+                                            {% endif %}
+                                        </a>
+                                    {% endif %}
+                                {% endfor %}
+                            </div> -->
+                        {% endif %}
+                    </div>
+
+                    <div class="slider col-md-3">
+                        <ul>
+                            {% for video in product.product_media.all %}
+
+                                {% if video.demo_video %}
+                                    <li class="bxslider">
+                                        <video class="videoThumb" width="100%" controls autoplay muted loop>
+                                            <source src="{{video.demo_video.name|slice:"6:"}}" type="video/mp4">
+                                          </video>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+			</div>
+            <br>
+            <br>
+            {% if user.is_authenticated %}
+                {% if user.id|is_level_one_completed %}
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <h5 class="mb-3 font-weight-bold text-primary">Price Structure</h5>
+                        </div>
+                        {% if product.product_prices.all %}
+                            {% for price_info in product.product_prices.all %}
+                            <div class="col-xl-4 col-md-6 mb-4">
+                                <div class="card border-left-primary shadow h-100">
+                                    <div class="card-body price-structure">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xm font-weight-bold text-primary text-uppercase mb-1">
+                                                    {{ price_info.label }}
+                                                </div>
+                                                <div class="h6 mb-0 font-weight-bold text-gray-800"><label>Frequency :</label>
+                                                    {{ price_info.get_frequency_display }}
+                                                </div>
+                                                <div class="h6 mb-0 font-weight-bold text-gray-800"><label>Amount : </label>
+                                                    <span class="prod-amt">{{ price_info.amount }}</span>
+                                                </div>
+                                                <div class="h6 mb-0 font-weight-bold text-gray-800"><label>Currency :</label>
+                                                    {{ price_info.get_currency_display|upper }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endif %}
+            <ul id="tabs" class="nav nav-tabs mobilecustomtabs" role="tablist">
+                <li class="nav-item">
+                    <a style="color:#495057;" class="nav-link active nav-small text-uppercase" id="product-details-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Product Details</a>
+                </li>
+                <li class="nav-item">
+                    <a style="color:#495057;" class="nav-link nav-small text-uppercase" id="packaging-and-delivery-details-tab" data-toggle="pill" href="#pills-package-delivery" role="tab" aria-controls="pills-profile" aria-selected="false">Packaging and Delivery Details</a>
+                </li>
+                <li class="nav-item">
+                    <a style="color:#495057;" class="nav-link nav-small text-uppercase" id="vendor-details-tab" data-toggle="pill" href="#pills-vendor-details" role="tab" aria-controls="pills-profile" aria-selected="false">Dealer's Info</a>
+                </li>
+            </ul>
+            <div class="tab-content" id="tabsContent">
+                <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="product-details-tab">
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Applicable Industries: </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">
+                                {% if product.industry.all %}
+                                    {% for industry in product.industry.all %}
+                                        <span>{{ industry.name }}, </span>
+                                    {% endfor %}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">After Warranty Service: </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">{{product.after_warranty_service|get_package_service}}</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Local Service Location: </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">{{ product.local_service_location }}</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Showroom Location: </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">{{ product.showroom_location }}</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Condition: </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">{{ product.get_condition_display }}</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Brand Name: </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">{{ product.brand_name }}</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Place of Origin: </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">{{ product.place_of_origin }}</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Power(W): </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">{{ product.power_watt }}</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Dimension(LWH): </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">{{ product.dimension }}</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Certification: </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">{{ product.certification }}</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Warranty (In Months): </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">{{ product.warranty }}</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">After-sales Service Provided: </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">{{ product.after_sales_service_provided|get_sale_service }}</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Engine: </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">{{ product.engine }}</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">UNIQUE SELLING POINT: </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">{{ product.unique_selling_point }}</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Engine type: </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">{{ product.engine_type }}</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Power: </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">{{ product.power }}</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Specification: </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">{{ product.specification }}</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="pills-package-delivery" role="tabpanel" aria-labelledby="packaging-and-delivery-details-tab">
+                    {% if product.product_delivery_detail %}
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Selling Units: </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">{{ product.product_delivery_detail.selling_units }}</label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Single package size: </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">{{ product.product_delivery_detail.single_package_size }}</label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Single gross weight:</label>
+                        <div class="col-sm-9">
+                            <label class="product-content">{{ product.product_delivery_detail.single_gross_weight }}</label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Package Type: </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">
+                                {{ product.product_delivery_detail.get_package_type_display }}
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Packing size: </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">{{ product.product_delivery_detail.packing_size }}</label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Packing weight: </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">{{ product.product_delivery_detail.packing_weight }}</label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Picture : </label>
+                        <div class="col-sm-9">
+                            <img src='{{ product.product_delivery_detail.picture.name|slice:"6:" }}' class="img-thumbnail" style="height: 5vh;">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Lead Time: </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">{{ product.product_delivery_detail.lead_time }}</label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Shipping Time: </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">{{ product.product_delivery_detail.shipping_time }}</label>
+                        </div>
+                    </div><div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Shipping Charges: </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">{{ product.product_delivery_detail.shipping_charges }}</label>
+                        </div>
+                    </div>
+                {% else %}
+                    <p>No Data Found !</p>
+                {% endif %}
+                </div>
+                <div class="tab-pane fade" id="pills-vendor-details" role="tabpanel" aria-labelledby="vendor-details-tab">
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label"> Dealer Name: </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">
+                                {{ product.vendor.first_name }} {{ product.vendor.last_name }}
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Email: </label>
+                        <div class="col-sm-9">
+                            <label class="product-content">{{ product.vendor.email }}</label>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </form>
+    </div>
+    {% include 'veloce/modal/rating-modal.html' %}
+    {% include 'veloce/modal/inquiry-modal.html' %}
+</div>
+
+{% endblock %}
+{% block customJsBlock %}
+<script>
+$(document).ready(function(){
+    $('.bxslider').bxSlider({
+      auto:false,
+      easing:'ease-in-out',
+      adaptiveHeight: true,
+      autoHover: true,
+      autoControls: true,
+      captions: true,
+      autoControls: true,
+      stopAutoOnClick: true,
+      pager: true,
+    });
+});
+</script>
+<script src='{% static "veloce-store/js/product-page.js" %}'></script>
+<script src='{% static "veloce-store/vendor/bxslider/jquery.bxslider.min.js" %}'></script>
+{% endblock %}

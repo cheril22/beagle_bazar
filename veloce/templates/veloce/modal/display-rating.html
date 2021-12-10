@@ -1,0 +1,34 @@
+{% load auth_tag %}
+<div class="label-rating m-0" xmlns:user.id>
+    <a {%if user.id|check_product_own_by_user:product.id %} href="/product-ratings/{{product.id}}"{%endif%}>
+        <div class="star-ratings-sprite">
+            <span style="width:{{product.id|get_percentage}}%" class="star-ratings-sprite-rating"></span>
+        </div>
+    </a>
+<!--    <a class="btn btn-primary" href="{%url 'index' %}">View Ratings</a>-->
+</div>
+<div class="label-rating btn-itm m-0">
+    {% if user.is_authenticated %}
+
+            {% if not 1 in user_level.incomplete_level and not 1 in user_level.not_verified_level %}
+                {% if user.id|check_status:product.id %}
+                    <a href="javaScript:void(0);" data-toggle="modal" data-target="#ratingModal">
+                        <span class="review-btn edit-review" data-product-id="{{product.id}}">Edit Review</span>
+                    </a>
+                {% else %}
+                    <a href="javaScript:void(0);" data-toggle="modal" data-target="#ratingModal">
+                        <span class="review-btn save-review" data-product-id="{{product.id}}">Write Review</span>
+                    </a>
+                {% endif%}
+            {% else %}
+                <a href="javaScript:void(0);" class="{% if 1 in user_level.incomplete_level %} compare-products {% elif not 1 in user_level.incomplete_level and 1 in user_level.not_verified_level%} admin-approval {%endif%}" data-check-level="1">
+                    <span class="review-btn">Write Review</span>
+                </a>
+            {% endif %}
+
+    {% else %}
+        <a href="javaScript:void(0);" class="check-auth">
+            <span class="review-btn">Write Review</span>
+        </a>
+    {% endif%}
+</div>

@@ -1,0 +1,35 @@
+{% extends 'veloce/layout/index.html' %}
+{% load auth_tag %}
+{% load static %}
+
+{% block customCssBlock %}
+<link rel="stylesheet" href='{% static "veloce-store/css/home-page.css" %}'>
+{% endblock %}
+
+{% block content %}
+<div class="row-fluid">
+    <div class="col-12" style="padding: 0">
+        <div class="row-title">
+            <h2>Search Items</h2>
+            <span class="view-more">View More</span>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    {% if searched_data %}
+        {% for product in searched_data %}
+            {% include 'veloce/products/products-list-layout.html' %}
+        {% endfor %}
+        {% include 'veloce/modal/rating-modal.html' %}
+        {% include 'veloce/modal/inquiry-modal.html' %}
+    {% else %}
+        <div class="card-body">
+            <label class="h5">No Data Found !</label>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+{% block customJsBlock %}
+    <script src='{% static "veloce-store/js/product-page.js" %}'></script>
+{% endblock %}

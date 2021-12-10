@@ -1,0 +1,57 @@
+{% extends 'veloce/layout/index.html' %}
+{% load auth_tag %}
+{% load static %}
+
+{% block title %}Scheme Listing{% endblock %}
+{% block customCssBlock %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
+<link rel="stylesheet" href='{% static "veloce-store/vendor/bootstrap/css/bootstrap-datetimepicker.css" %}'>
+<link rel="stylesheet" href='{% static "veloce-store/css/home-page.css" %}'>
+{% endblock %}
+{% block content %}
+<!-- Page Heading -->
+<h1 class="h3 mb-2 text-gray-800 text-left">My Products Scheme </h1>
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary"> Schemes </h6>
+    </div>
+    <div class="card-body">
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% include 'veloce/form/form.html' %}
+<!--            <button type="submit" class="btn btn-primary btn-user btn-block">Save</button>-->
+            <a class="btn btn-secondary" href="{% url 'dealers_scheme_list' %}">Back</a>
+            {% if expired %}
+            {% else %}
+                <button type="submit" class="btn btn-primary js-save-rating">Save</button>
+            {% endif %}
+
+
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block customJsBlock %}
+<script src='{% static "veloce-store/js/product-page.js" %}'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.3/moment-with-locales.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta.2/js/bootstrap.bundle.min.js'></script>
+<script src='{% static "veloce-store/vendor/bootstrap/js/bootstrap-datetimepicker.min.js" %}'></script>
+<script>
+$(document).ready(function(){
+$(function () {
+    if(!$('#id_start_date').prop('disabled') && !$('#id_end_date').prop('disabled')){
+        $('#id_start_date').datetimepicker({ minDate: moment().subtract(1, 'h').toDate(), format: 'YYYY-MM-DD HH:mm A' });
+	    $('#id_end_date').datetimepicker({ minDate: moment().subtract(1, 'h').toDate(), format: 'YYYY-MM-DD HH:mm A' });
+    }
+    else{
+        $('#id_start_date').datetimepicker({ format: 'YYYY-MM-DD HH:mm A' });
+	    $('#id_end_date').datetimepicker({ format: 'YYYY-MM-DD HH:mm A' });
+    }
+    });
+    $(':disabled').each(function(){
+        $(this).after('<input type="hidden" name="' + $(this).attr('name') + '" id="' + $(this).attr('name') + '" value="' + $(this).val() + '" />');
+    });
+
+});
+</script>
+{% endblock %}

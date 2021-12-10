@@ -1,0 +1,768 @@
+{% extends 'veloce/layout/index.html' %}
+{% load auth_tag %}
+{% load static %}
+
+{% block title %}Product Listing Page{% endblock %}
+
+{% block customCssBlock %}
+<style>
+    .error{
+        display: none;
+        margin-left: 10px;
+    }
+
+    .error_show{
+        color: red;
+        margin-left: 10px;
+    }
+
+    .removeImg {
+        position: absolute;
+        top: 2px;
+        /* right: 52px; */
+        left: 34px;
+        z-index: 100;
+        background-color: red;
+        padding: 3px 2px 2px;
+        color: #ffff;
+        font-weight: bolder;
+        cursor: pointer;
+        opacity: 0.5;
+        font-size: 14px;
+        line-height: 10px;
+        border-radius: 50%;
+    }
+
+    .removePdf {
+        position: absolute;
+        top: 2px;
+        /* right: 52px; */
+        left: 16px;
+        z-index: 100;
+        background-color: red;
+        padding: 3px 2px 2px;
+        color: #ffff;
+        font-weight: bolder;
+        cursor: pointer;
+        opacity: 0.5;
+        font-size: 14px;
+        line-height: 10px;
+        border-radius: 50%;
+    }
+
+
+    .main_img_rm {
+        position: absolute;
+        top: 2px;
+        left: 34px;
+        z-index: 100;
+        background-color: red;
+        padding: 3px 2px 2px;
+        color: #ffff;
+        font-weight: bolder;
+        cursor: pointer;
+        opacity: 0.5;
+        font-size: 14px;
+        line-height: 10px;
+        border-radius: 50%;
+    }
+
+    input[type="file"] {
+      display: block;
+    }
+    .imageThumb {
+      max-height: 23px;
+      border: 1px solid;
+      cursor: pointer;
+    }
+
+    .img-wrap {
+        position: relative;
+        width: 50px;
+        float: left;
+        display: inline-flex;
+        margin-top: 7px;
+        vertical-align: top;
+    }
+    .imageThumb {
+        max-height: 40px;
+        border: 1px solid;
+        cursor: pointer;
+        width: 48px;
+        height: 40px;
+    }
+    .remove{
+        position: absolute;
+        top: 2px;
+        right: 4px;
+        z-index: 100;
+        background-color: red;
+        padding: 3px 2px 2px;
+        color: #ffff;
+        font-weight: bolder;
+        cursor: pointer;
+        opacity: 0.5;
+        font-size: 14px;
+        line-height: 10px;
+        border-radius: 50%;
+    }
+    .preview-modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 10000 !important; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
+    }
+
+    /* Modal Content (image) */
+    .preview-modal-content {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 700px;
+    }
+
+    /* Caption of Modal Image */
+    #caption {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 700px;
+    text-align: center;
+    color: #ccc;
+    padding: 10px 0;
+    height: 150px;
+    }
+
+    /* Add Animation */
+    .preview-modal-content, #caption {
+    -webkit-animation-name: zoom;
+    -webkit-animation-duration: 0.6s;
+    animation-name: zoom;
+    animation-duration: 0.6s;
+    }
+
+    @-webkit-keyframes zoom {
+    from {-webkit-transform:scale(0)}
+    to {-webkit-transform:scale(1)}
+    }
+
+    @keyframes zoom {
+    from {transform:scale(0)}
+    to {transform:scale(1)}
+    }
+
+    /* The Close Button */
+    .close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #c1c1c1;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+    }
+
+    .close:hover,
+    .close:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+    }
+
+    /* 100% Image Width on Smaller Screens */
+    @media only screen and (max-width: 700px){
+    .preview-modal-content {
+        width: 100%;
+    }
+    }
+    .pdf-wrap {
+    position: relative;
+    width: 32px;
+    height: 20px;
+    float: left;
+    display: inline-block;
+    margin-top: 8px;
+    vertical-align: top;
+    margin-left: 5px;
+}
+
+    .removeImg {
+        position: absolute;
+        top: 2px;
+        /* right: 52px; */
+        left: 34px;
+        z-index: 100;
+        background-color: red;
+        padding: 3px 2px 2px;
+        color: #ffff;
+        font-weight: bolder;
+        cursor: pointer;
+        opacity: 0.5;
+        font-size: 14px;
+        line-height: 10px;
+        border-radius: 50%;
+    }
+
+    .removePdf {
+        position: absolute;
+        top: 2px;
+        /* right: 52px; */
+        left: 16px;
+        z-index: 100;
+        background-color: red;
+        padding: 3px 2px 2px;
+        color: #ffff;
+        font-weight: bolder;
+        cursor: pointer;
+        opacity: 0.5;
+        font-size: 14px;
+        line-height: 10px;
+        border-radius: 50%;
+    }
+
+
+    .main_img_rm {
+        position: absolute;
+        top: 2px;
+        left: 34px;
+        z-index: 100;
+        background-color: red;
+        padding: 3px 2px 2px;
+        color: #ffff;
+        font-weight: bolder;
+        cursor: pointer;
+        opacity: 0.5;
+        font-size: 14px;
+        line-height: 10px;
+        border-radius: 50%;
+    }
+</style>
+<link href='{% static "veloce-store/vendor/datatables/dataTables.bootstrap4.min.css" %}' rel="stylesheet">
+<link rel="stylesheet" href='{% static "veloce-store/css/home-page.css" %}'>
+{% endblock %}
+
+{% block content %}
+<!-- Page Heading -->
+<h1 class="h3 mb-2 text-gray-800 text-left">
+    Inquiries
+</h1>
+
+<!--my inquiry for the products-->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary"> My Purchase Inquiries </h6>
+        <small> Being purchase inquires raised by you. </small>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="inq-data-Table" width="100%" cellspacing="0">
+                <thead>
+                <tr>
+                    <th  width="5%" class="text-center">No</th>
+                    <th  width="22%" class="text-center">Dealer Name</th>
+                    <th  width="35%" class="text-center">Product Name</th>
+                    <th  width="18%" class="text-center">Inquiry Date</th>
+                    <th  width="20%" class="text-center">Inquiry message</th>
+                    <th  width="20%" class="text-center">Transaction Status</th>
+                    <th  width="20%" class="text-center">Uploaded Bill</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if my_inquiries %}
+                {% for inquiry in my_inquiries %}
+                <tr>
+                    <th scope="row">{{inquiry.id}}</th>
+                    <td>{{inquiry.product.vendor}}</td>
+                    <td>{{inquiry.product.name}}</td>
+                    <td>{{inquiry.product.created_at}}</td>
+                    <td>{{inquiry.inquiry_message}}</td>
+                    <td>
+                        Pending
+                    </td>
+                    <td>
+                        {% if inquiry.is_product_bill_generated %}
+                            <a href="{% url 'bill-finance-details' inquiry.id %}" class="btn btn-primary">Bill Details</a>
+                        {%else%}
+                            <button href="javascript:void(0);" class="btn btn-secondary" disabled>Bill not uploaded</button>
+                        {%endif%}
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!--My product inquiry start-->
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary"> My Products Inquiries </h6>
+        <small>Being Inquiries received to purchase your listed product's.</small>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="purchase-inq-data-table" width="100%" cellspacing="0">
+                <thead>
+                <tr>
+                    <th width="5%" class="text-center">Inquiry No</th>
+                    <th width="15%" class="text-center">Customer Name</th>
+                    <th width="15%" class="text-center">Product Name</th>
+                    <th width="13%" class="text-center">Inquiry Date</th>
+                    <th width="25%" class="text-center">Inquiry message</th>
+                    <th width="9%" class="text-center">Transaction Done</th>
+                    <th width="18%" class="text-center">Upload Bill Information</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if my_product_inquiries %}
+                {% for inquiry in my_product_inquiries %}
+                <tr>
+                    <td class="text-center">{{inquiry.id}}</td>
+                    <td>{{inquiry.inquiry_by.email}}</td>
+                    <td>{{inquiry.product.name}}</td>
+                    <td>{{inquiry.created_at}}</td>
+                    <td>{{inquiry.inquiry_message}}</td>
+                    {% if inquiry.is_product_bill_generated %}
+                    <td class="text-center">-</td>
+                    <td>Bill Uploaded</td>
+                    {% else %}
+                    <td class="text-center">
+                        <input type="checkbox" name="is_inquiry_done">
+                    </td>
+                    <td >
+                        <a href="javascript:void(0);" class="btn btn-primary book-your-sale" data-product-id="{{ inquiry.product.id }}" data-inquiry-id="{{ inquiry.id }}" data-toggle="modal" data-target="#billDiscountingModal">Upload Bill</a>
+                        <a href="javascript:void(0);" class="btn btn-primary book-your-sale" data-product-id="{{ inquiry.product.id }}" data-inquiry-id="{{ inquiry.id }}" data-toggle="modal" data-target="#forwardInquiries">Forward Inquiry</a>                        
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% if upload_bill_info %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary"> Uploaded Bill </h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="financeTable" width="100%" cellspacing="0">
+                <thead>
+                <tr>
+                    <th class="text-center">No</th>
+                    <th class="text-center">Bill No</th>
+                    <th class="text-center">Product Name</th>
+                    <th class="text-center">Name</th>
+                    <th class="text-center">Inquiry Date</th>
+                    <th class="text-center">Query</th>
+                    <th class="text-center">Actions</th>
+                    <th class="text-center">Finance</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if upload_bill_info %}
+                    {% for inquiry in upload_bill_info %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td>{{inquiry.bill_disc_inquiry.bill_no}}</td>
+                            <td>{{inquiry.product.name}}</td>
+                            <td>{{inquiry.inquiry_by.email}}</td>
+                            <td>{{inquiry.created_at}}</td>
+                            <td>{{inquiry.inquiry_message}}</td>
+                            {% if inquiry.bill_disc_inquiry.id %}
+                            <td align='center'>
+                                <a href="{% url 'edit_uploaded_bill' inquiry.bill_disc_inquiry.id %}" class="btn btn-primary"><i class="fa fa-edit up-bill-edit" aria-hidden="true"></i></a>
+                            </td>
+                            {%else%}
+                                <td></td>
+                            {%endif%}
+                            <td>
+                                {% if inquiry.inquiry_by.id|is_level_three_completed and user.id|is_level_three_completed %}
+                                    {%if not inquiry.is_product_financed %}
+                                        <!-- <a href="javascript:void(0);" class="btn btn-primary finance-btn" data-toggle="modal" data-target="#FinanceConfirmationModal" data-url="http://192.168.0.20:7004/accounts/login/?next=http://192.168.0.20:7003/application/bill/new/loan/{{inquiry.id}}">Opt for Bill Discounting</a> -->
+                                        <a href="javascript:void(0);" class="btn btn-primary finance-btn" data-toggle="modal" data-target="#FinanceConfirmationModal" data-url="{{ bill_discount_url }}/{{inquiry.id}}">Opt for Bill Discounting</a>
+                                    {%else%}
+                                        <button href="javascript:void(0);" class="btn btn-secondary" disabled>Financed</button>
+                                    {%endif%}
+                                {% else %}
+                                    <a href="javascript:void(0);" class="btn btn-primary" data-toggle="modal" data-target="#incompleteUserLevelModal">Opt for Bill Discounting</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+<!--------------------------- GENERATE BILL POP UP --------------------------->
+{% if user.id|is_eligible_for_vendor %}
+<div class="modal fade bd-example-modal-lg" id="billDiscountingModal" tabindex="-1" role="dialog"
+     aria-labelledby="billDiscountingModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="billDiscountingModalLabel">
+                    Generate Bill
+                    <span class="inq-prod-name" style="color: rgb(0, 153, 88);"></span>
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" id="billGeneratingForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% include 'veloce/form/form.html' %}
+                    <input type="hidden" id="started_date" />
+                    <input type="hidden" id="ended_date" />
+                    <hr>
+                    <h5>Enter Bill Detail Info</h5>
+                    <hr>
+                    <div class="d-flex">
+                        <div class="pl-2">
+                            <label>#</label>
+                            <label class="bill_sr_no mt-2">1</label>
+                        </div>
+                        <div class="pl-2">
+                            <label for="ref_inq_no">Ref. Inquiry No.:</label>
+                            <input type="text" name="ref_inq_no" class="form-control" id="ref_inq_no" readonly>
+                        </div>
+                        <div class="pl-2">
+                            <label for="inq_product_name">Product:</label>
+                            <input type="text" name="inq_product_name" class="form-control" id="inq_product_name" readonly>
+                        </div>
+                        <div class="pl-2">
+                            <label for="qty">Qty:</label>
+                            <input type="text" name="qty" class="form-control" id="qty">
+                        </div>
+                        <div class="pl-2">
+                            <label for="inq_product_price">Price:</label>
+                            <input type="text" name="inq_product_price" class="form-control" id="inq_product_price">
+                        </div>
+                    </div>
+                    <div class="d-flex">
+                        <div class="pl-2">
+                            <label> </label>
+                            <label class="mt-2"> </label>
+                        </div>
+                        <div class="pl-2">
+                            <label for="inq_product_gross_amt">Gross Amt:</label>
+                            <input type="text" name="inq_product_gross_amt" class="form-control"
+                                   id="inq_product_gross_amt">
+                        </div>
+                        <div class="pl-2">
+                            <label for="inq_product_disc_amt">Disc Amt:</label>
+                            <input type="text" name="inq_product_disc_amt" class="form-control"
+                                   id="inq_product_disc_amt">
+                        </div>
+                        <div class="pl-2">
+                            <label for="inq_product_tax">Taxes:</label>
+                            <input type="text" name="inq_product_tax" class="form-control" id="inq_product_tax">
+                        </div>
+                        <div class="pl-2">
+                            <label for="inq_product_tax">Final Amt:</label>
+                            <input type="text" name="inq_product_final_amt" class="form-control"
+                                   id="inq_product_final_amt">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-2 book-sales-btn">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+<!--------------------------- FORWARD INQUIRY POP UP --------------------------->
+<div class="modal fade" id="forwardInquiries" tabindex="-1" role="dialog" aria-labelledby="forwardInquiriesModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document" style="max-width: 750px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="forwardInquiriesModalLabel">
+                    Forwad Product Inquiry <br>
+                    <small>Product Name: <span class="inq-prod-name" style="color: rgb(0, 153, 88);"></span></small>
+                </h5>     
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body" style="max-width: 1000%;max-height: 750px;overflow: auto;">
+                <table class="table table-bordered" id="" width="100%" cellspacing="0">
+                    <thead>
+                    <tr>
+                        <th width="5%" class="text-center">Inquiry No</th>
+                        <th width="20%" class="text-center">Dealer Name</th>
+                        <th width="20%" class="text-center">Customer Name</th>
+                        <th width="13%" class="text-center">Inquiry Date</th>
+                        <th width="25%" class="text-center">Inquiry message</th>
+                        <th width="17%" class="text-center">Select</th>
+                    </tr>
+                    </thead>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>3</td>
+                        <td>4</td>
+                        <td>5</td>
+                        <td>6</td>
+                </table>
+            </div>
+            <!-- <div class="modal-body">Do you really want to this dealer ?</div> -->
+            <div class="modal-footer">
+                <a class="btn btn-success" id="get_id" href="">Confirm</a>
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModal" class="preview-modal">
+    <span class="close">&times;</span>
+    <img class="preview-modal-content" id="img01">
+    <div id="caption"></div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="incompleteUserLevelModal" tabindex="-1" role="dialog"
+     aria-labelledby="incompleteUserLevelModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="incompleteUserLevelModalLabel">Profile Incomplete</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-dashboard/inquirieslabel="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <p style="font-size: 50px; flex: 0; padding: 20px; padding-top:0px;">
+                            ❌
+                        </p>
+                    </div>
+                    <div class="col-md-9">
+                        <div style="flex: 1; text-align: left; font-size: 18px;">
+                            <p>
+                                You or customer have not completed your profile! You need to complete the remaining elements
+                                to be able to use this platform:
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary"><a href="{% url 'edit_profile' %}">Edit Profile</a></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="SchemeInfoModal" tabindex="-1" role="dialog" aria-labelledby="SchemeInfoModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="SchemeInfoModalLabel">Profile Incomplete</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <p style="font-size: 50px; flex: 0; padding: 20px; padding-top:0px;">
+                                    ❌
+                                </p>
+                            </div>
+                            <div class="col-md-9">
+                                <div style="flex: 1; text-align: left; font-size: 18px;">
+                                    <p>
+                                        Upload Bill has been submitted successfully! Your chosen scheme is valid between <label id="modal_started_date"></label> to <label id="modal_ended_date"></label>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" id="modal-ok">Ok</button>
+<!--                        <button type="button" class="btn btn-primary"><a href="{% url 'edit_profile' %}">Edit-->
+<!--                            Profile</a></button>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+<!--Model for finance confirmatons-->
+<div class="modal fade" id="FinanceConfirmationModal" tabindex="-1" role="dialog"
+     aria-labelledby="incompleteUserLevelModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="logo-block"  style="padding: 0px; margin: 0px; max-width: 30%;">
+                <a href="{% url 'index' %}">
+                    <img src="/static/beaglelogo.png" alt="" class="imgs-fluid logo" />
+                </a>
+           </div>
+            <!-- <div class="modal-header pb-4"> --><hr  style="margin-top: 0px; margin-bottom: 0px;"> 
+                <button type="button" class="close p-0" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            <!-- </div> -->
+            <div class="modal-body">
+                <p class="font-weight-bold">Are you sure, you wish to opt for bill financing for this bill ?</p>
+                <hr>
+                <form method="post" id="loan_application_form" action="http://192.168.0.20:7004/accounts/login/?next=/o/authorize/%3Fclient_id%3DhG5XBhRRLwz4SVxQ9KlG5OBWF390XvWyjkzA1v4k%26redirect_uri%3Dhttp%3A//192.168.0.20%3A7003/complete/vauth/%26response_type%3Dcode" novalidate="novalidate">
+                    {% csrf_token %}
+                    <div class="form-group row" style="margin-bottom: 0px;">
+                        <div class="form-group col-sm-12">
+                            <label for="id_email"><label class="required" for="id_email">Email:</label></label>
+                            <div class="d-block">
+                                <input type="text" name="email" value="{{request.user.email}}" class="form-control" title="id_email" readonly required id="id_email">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label for="id_password"><label class="required" for="id_password">Password:</label></label>
+                            <!-- <div class="d-block">
+                                <input type="password" name="password" class="form-control" title="password" required id="id_password">
+                            </div> -->
+                            <div class="d-block">
+                                <input type="password" name="password" class="form-control" title="password" required id="id_password"><br>
+                                <input type="checkbox" onclick="myFunction()"> Show Password
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer text-center">
+                        <button class="btn btn-info" style="background-color: #009957;border-color: white;">Verify</button>
+                        <button type="button" class="btn btn-outline-info waves-effect " data-dismiss="modal">Close</button>
+                      </div>
+                    
+                    
+                </form>
+            </div>
+            <!-- <div class="modal-footer">
+                <button type="button" class="btn btn-outline-info waves-effect ml-auto" data-dismiss="modal">Close</button>
+            </div> -->
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block customJsBlock %}
+<script>
+    var modal = document.getElementById("myModal");
+        $(document).ready(function() {
+            $(document).on('click', '.preview-img', function(){
+                var img = $(this);
+                var modalImg = document.getElementById("img01");
+                var captionText = document.getElementById("caption");
+                modal.style.display = "block";
+                modalImg.src = this.src;
+                captionText.innerHTML = this.alt;
+            });
+
+// <!--            $(document).on('click', '.book-sales-btn', function(){-->
+// <!--                $(this).closest("form").submit();-->
+// <!--                if($(".book-sales-btn").parent().find('.alert-danger').length <= 0){-->
+// <!--                    alert("working");-->
+// <!--                    $('#SchemeInfoModal').modal('show');-->
+// <!--                }-->
+// <!--            });-->
+// <!--            $('.book-sales-btn').on('submit', function(e){-->
+// <!--                $('#SchemeInfoModal').modal('show');-->
+// <!--                e.preventDefault();-->
+// <!--            });-->
+
+
+            $('#verify_login_btn').on('click',function(e){
+                //loan_application_form
+                //e.preventDefault();
+                var _email = $('#id_email').val();
+                var _password = $('#id_password').val();
+                var token = $("input[name=csrfmiddlewaretoken]").val();
+                var _url = $('.finance-btn').data("url");
+
+                // $.ajax({
+                //     type: 'POST',
+                //     url: "http://192.168.0.20:7004/accounts/login/?next=/o/authorize/%3Fclient_id%3DhG5XBhRRLwz4SVxQ9KlG5OBWF390XvWyjkzA1v4k%26redirect_uri%3Dhttp%3A//192.168.0.20%3A7003/complete/vauth/%26response_type%3Dcode",
+                //     data : {email:_email,password:_password,csrfmiddlewaretoken: token},
+                //     success: function(result){
+                //         //window.location.href=_url;
+                //         //window.location.replace(_url);
+
+                //     },
+                //     error: function(result){
+                //         //window.location.href=_url;
+                //         //window.location.replace(_url);
+                //     },
+                // });
+            });
+
+        });
+
+        var span = document.getElementsByClassName("close")[1];
+        span.onclick = function() {
+        modal.style.display = "none";
+        }
+
+
+</script>
+<script>
+    function myFunction() {
+      var x = document.getElementById("id_password");
+      if (x.type === "password") {
+        x.type = "text";
+      } else {
+        x.type = "password";
+      }
+    }
+    </script>
+<script src='{% static "veloce-store/vendor/datatables/jquery.dataTables.min.js" %}'></script>
+<script src='{% static "veloce-store/vendor/datatables/dataTables.bootstrap4.min.js" %}'></script>
+<script src='{% static "veloce-store/vendor/datatables/datatables-demo.js" %}'></script>
+<script src='{% static "veloce-store/js/product-page.js" %}'></script>
+{% endblock %}
